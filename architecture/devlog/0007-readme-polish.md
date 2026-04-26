@@ -85,7 +85,7 @@ Out: PyPI publish (TODO #2), GH ticket templates (TODO #3), OSX support, version
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -133,15 +133,15 @@ Within charter scope.
 
 | #   | Point                                                                                                 | Agent    | User |
 | --- | ----------------------------------------------------------------------------------------------------- | -------- | ---- |
-| 1   | DFD-style structure landed in one draft pass — reference accelerated the design                       | well     |      |
-| 2   | Hand-crafted SVG hero unblocked the no-screenshot-tool dead-end                                       | well     |      |
-| 3   | First hero render had wrong asking colour — should have read `_cli.py` colour map before drafting     | not well |      |
-| 4   | Real project name slipped into the hero — should have asked about name sensitivity beforehand         | not well |      |
-| 5   | CLI-as-metonymy not caught by agent — user surfaced it in round 4                                     | not well |      |
-| 6   | Three-round honest-take pattern converged with concrete improvements; round 3 self-reported asymptote | well     |      |
-| 7   | Cache-aware token-totals row gives a quantified ~10× claim — concrete value-prop                      | well     |      |
-| 8   | Library example reframed to filter-by-state — sells what only the library can do                      | well     |      |
-| 9   | Devlog 0001 scrub reset § 3 Closure on a previously merged task — new pattern, mild surprise          | surprise |      |
+| 1   | DFD-style structure landed in one draft pass — reference accelerated the design                       | well     | well |
+| 2   | Hand-crafted SVG hero unblocked the no-screenshot-tool dead-end                                       | well     | well |
+| 3   | First hero render had wrong asking colour — should have read `_cli.py` colour map before drafting     | not well | well |
+| 4   | Real project name slipped into the hero — should have asked about name sensitivity beforehand         | not well | well |
+| 5   | CLI-as-metonymy not caught by agent — user surfaced it in round 4                                     | not well | well |
+| 6   | Three-round honest-take pattern converged with concrete improvements; round 3 self-reported asymptote | well     | well |
+| 7   | Cache-aware token-totals row gives a quantified ~10× claim — concrete value-prop                      | well     | well |
+| 8   | Library example reframed to filter-by-state — sells what only the library can do                      | well     | well |
+| 9   | Devlog 0001 scrub reset § 3 Closure on a previously merged task — new pattern, mild surprise          | surprise | well |
 
 ### 3.8 Demo scenario
 
