@@ -1,4 +1,5 @@
 {
+  "files.trimTrailingWhitespace": true,
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "charliermarsh.ruff",
