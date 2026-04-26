@@ -8,7 +8,7 @@
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -71,7 +71,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
@@ -96,14 +96,14 @@ Out of scope: splitting `claude_busy_monitor.py` (TODO #1), test scaffold (TODO 
 
 ## Governance trace
 
-| Source                           | Clause                          | Action  | Note                                           |
-| -------------------------------- | ------------------------------- | ------- | ---------------------------------------------- |
-| CEREMONIES.md `Task start`       | Task start ceremony             | applied | scope decomposed; framework discussed before § 2 |
-| CLAUDE.md `Code-reuse`           | Frameworks and libraries trigger | applied | `uv` + `hatchling` over hand-rolled setup     |
-| CLAUDE.md `YAGNI`                | YAGNI                           | applied | `dependencies = []`; populated in TODO #1     |
-| CLAUDE.md `Naming discipline`    | Outcome-named                   | applied | `claude-busy-monitor` describes purpose       |
-| architecture/devlog/CLAUDE.md    | Lean mandate + execution plan   | applied | two-pass compression                           |
-| CLAUDE.md `First-task carve-out` | Bootstrapping gap               | tension | Charter / MEMORY / governance / HOWTO absent — proceed with carve-out per user (2026-04-26) |
+| Source                           | Clause                           | Action  | Note                                                                                        |
+| -------------------------------- | -------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| CEREMONIES.md `Task start`       | Task start ceremony              | applied | scope decomposed; framework discussed before § 2                                            |
+| CLAUDE.md `Code-reuse`           | Frameworks and libraries trigger | applied | `uv` + `hatchling` over hand-rolled setup                                                   |
+| CLAUDE.md `YAGNI`                | YAGNI                            | applied | `dependencies = []`; populated in TODO #1                                                   |
+| CLAUDE.md `Naming discipline`    | Outcome-named                    | applied | `claude-busy-monitor` describes purpose                                                     |
+| architecture/devlog/CLAUDE.md    | Lean mandate + execution plan    | applied | two-pass compression                                                                        |
+| CLAUDE.md `First-task carve-out` | Bootstrapping gap                | tension | Charter / MEMORY / governance / HOWTO absent — proceed with carve-out per user (2026-04-26) |
 
 ## Resource consumption
 
