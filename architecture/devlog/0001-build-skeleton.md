@@ -93,7 +93,7 @@ Out of scope: splitting `claude_busy_monitor.py` (TODO #1), test scaffold (TODO 
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: user
+- Review: pending
 
 ### 3.1 Implementation deviations
 
@@ -186,7 +186,7 @@ Unblocks TODO #1 (split monolith — package layout fixed), TODO #2 (test scaffo
 | CLAUDE.md `Naming discipline`         | Outcome-named                    | applied | `claude-busy-monitor` describes purpose                                                     |
 | architecture/devlog/CLAUDE.md         | Lean mandate + execution plan    | applied | two-pass compression                                                                        |
 | CLAUDE.md `Housekeeping on main`      | Branch hygiene                   | applied | TODO.md updates committed on `main`; branch left untouched until rebuild                    |
-| CLAUDE.md `Force-push confirmation`   | Destructive op gate              | applied | user authorized 3 force-pushes (pikett scrub, ec66934 scrub, branch rebuild)                |
+| CLAUDE.md `Force-push confirmation`   | Destructive op gate              | applied | user authorized 3 force-pushes (leak scrub, ec66934 scrub, branch rebuild)                  |
 | CLAUDE.md `First-task carve-out`      | Bootstrapping gap                | tension | Charter / MEMORY / governance / HOWTO absent — proceed with carve-out per user (2026-04-26) |
 | CEREMONIES.md `Task closure`          | Task closure ceremony            | applied | this section                                                                                |
 
@@ -199,11 +199,11 @@ Unblocks TODO #1 (split monolith — package layout fixed), TODO #2 (test scaffo
 | Closure        | ~40k            | 30 min    |
 | **Total**      | **~190k**       | **~3 h**  |
 
-| Counter                              | Value                               |
-| ------------------------------------ | ----------------------------------- |
-| Pre-commit hook fails                | 0                                   |
-| Pre-tool-use hook denials            | 2 (force-push amend, `curl\|sh`)    |
-| Force-pushes (main)                  | 2 (pikett scrub, ec66934 scrub)     |
-| Force-pushes (branch)                | 2 (pikett-related, ec66934-related) |
-| LOC changed (`git diff main...HEAD`) | +320 / -92 net                      |
-| Files changed                        | 8                                   |
+| Counter                              | Value                              |
+| ------------------------------------ | ---------------------------------- |
+| Pre-commit hook fails                | 0                                  |
+| Pre-tool-use hook denials            | 2 (force-push amend, `curl\|sh`)   |
+| Force-pushes (main)                  | 2 (leak scrub, ec66934 scrub)      |
+| Force-pushes (branch)                | 2 (leak-scrub-related, ec66934-related) |
+| LOC changed (`git diff main...HEAD`) | +320 / -92 net                     |
+| Files changed                        | 8                                  |
