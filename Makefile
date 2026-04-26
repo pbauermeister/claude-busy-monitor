@@ -58,22 +58,27 @@ venv-activate: _venv ## sync deps into .venv and start an interactive shell with
 ## Quality:: ##
 
 .PHONY: lint
-lint: ## run ruff lint
+lint: ## ruff check + format-check (read-only)
 	uv run ruff check src
+	uv run ruff format --check src
 
 .PHONY: format
-format: ## run ruff format (in-place)
+format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
+	uv run ruff check --fix src
 
 .PHONY: test
 test: ## run pytest
 	uv run pytest
 
+.PHONY: check
+check: lint test ## run lint + test (CI / pre-PR convenience)
+
 ################################################################################
 ## Build and install:: ##
 
 .PHONY: build
-build: ## build wheel + sdist into dist/
+build: lint ## build wheel + sdist into dist/
 	uv build
 
 .PHONY: install
