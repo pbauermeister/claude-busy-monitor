@@ -1,0 +1,84 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start-venv-activate.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Inspect the new_string parameter of this Edit call. If it contains the literal text '- Review: user', BLOCK this edit. Reason: only the human may attest their own review — the agent must never write '- Review: user' into any file. All other edits are ALLOWED."
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/edit-uncommitted-attest-block.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/edit-pending-marker-require.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/bash-main-task-commit-block.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/edit-missing-metadata-warn.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/edit-claude-md-length-warn.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/edit-trailing-whitespace-warn.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/save-md-prettier-run.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/save-md-prettier-run.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/bash-missing-trailer-warn.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
