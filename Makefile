@@ -14,7 +14,7 @@ help: ## print this help
 	@echo "TARGETs:"
 
 	@# capture section headers and documented targets:
-	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
+	@grep -E '^#* *[ a-zA-Z0-9_-]+:.*?##.*$$' Makefile \
 	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-18s%s\n", $$1, $$2}' \
 	| sed -E 's/^ *#+/\n/g' \
 	| sed -E 's/ +$$//g' \
@@ -61,13 +61,8 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
-.PHONY: test
-test: ## run pytest
-	uv sync --extra dev
-	uv run pytest
-
 .PHONY: check
-check: lint test ## run lint + test (CI / pre-PR convenience)
+check: lint test-full ## run lint + test-full (CI / pre-PR convenience)
 
 .PHONY: cycle
 cycle: ## full cycle: uninstall, clean, lint, test, install (1)
@@ -79,6 +74,30 @@ cycle: ## full cycle: uninstall, clean, lint, test, install (1)
 	$(MAKE) lint
 	$(MAKE) test
 	$(MAKE) install
+
+################################################################################
+## Tests:: ##
+
+.PHONY: test-unit
+test-unit: ## run unit tests (fast, no I/O)
+	uv sync --extra dev
+	uv run pytest tests/unit
+
+.PHONY: test-smoke
+test-smoke: ## run smoke tests (subprocess invocations, no real Claude)
+	uv sync --extra dev
+	uv run pytest tests/smoke
+
+.PHONY: test-e2e
+test-e2e: ## run e2e tests (slow — drives real Claude Code)
+	uv sync --extra dev --extra e2e
+	uv run pytest tests/e2e
+
+.PHONY: test-full
+test-full: test-unit test-smoke ## unit + smoke (fast default)
+
+.PHONY: test
+test: test-full ## alias for test-full
 
 ################################################################################
 ## Build and install:: ##

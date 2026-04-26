@@ -242,6 +242,7 @@ def get_state_counts(
     later state.
     """
     counts = {state: 0 for state in ClaudeState}
-    for s in sessions or get_sessions():
+    sessions_to_count = sessions if sessions is not None else get_sessions()
+    for s in sessions_to_count:
         counts[s.state] += 1
     return counts

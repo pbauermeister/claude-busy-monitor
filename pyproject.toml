@@ -28,6 +28,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+e2e = ["pexpect"]
 
 [project.scripts]
 claude-busy-monitor = "claude_busy_monitor._cli:main"
