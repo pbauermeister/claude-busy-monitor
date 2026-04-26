@@ -120,6 +120,8 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
   - `_cli.py`: ANSI escape constants regrouped into a `StrEnum` (`Ansi`).
   - `_cli.py`: `argparse.ArgumentParser` added so `claude-busy-monitor -h` prints a description.
   - `_sessions.py`: `get_state_counts(sessions=...)` docstring expanded to explain the consistency-with-prior-listing intent.
+  - `Makefile`: dropped orphan `require` target — `uv run` auto-syncs for tooling targets, so `require` was unused. Folded `uv sync --extra dev` into `venv-activate` so the activated shell is always usable (e.g. before opening VS Code, for type-resolution and autocomplete).
+  - `README.md`: simplified dev setup flow to `make venv-activate && make help`.
 
 ### 3.2 File inventory
 
@@ -128,7 +130,8 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
 - modified: `pyproject.toml` — `version` declared dynamic; `[tool.hatch.version]` regex source on `CHANGES.md`.
 - modified: `src/claude_busy_monitor/__init__.py` — re-exports public API; `__version__` via `importlib.metadata`.
 - modified: `src/claude_busy_monitor/_cli.py` — real CLI (palette as `Ansi` `StrEnum` + `_humanize_count` + `argparse`-driven `main`).
-- modified: `Makefile` — added `install` target.
+- modified: `Makefile` — added `install` target; dropped orphan `require` target; `venv-activate` now syncs deps before activating.
+- modified: `README.md` — dev setup flow simplified to `make venv-activate && make help`.
 - modified: `README-STATE-DETECTION.md` — companion path now points at `_sessions.py`.
 - modified: `uv.lock` — refreshed by `uv sync` after pyproject change.
 - deleted: `claude_busy_monitor.py` — replaced by `_sessions.py`.
@@ -138,7 +141,7 @@ Effective set matches § 2.1 inline mentions; the only post-plan divergence is t
 ### 3.3 Verification commands
 
 ```bash
-make require                # uv sync --extra dev
+make venv-activate          # creates .venv, syncs deps, opens activated shell
 make lint                   # uv run ruff check src — clean
 make build                  # dist/ wheel + sdist for 0.1.0
 make install                # ~/.local/bin/claude-busy-monitor

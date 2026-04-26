@@ -4,20 +4,28 @@
 SHELL := /bin/bash
 VENV  ?= .venv
 
-.PHONY: help install-uv venv venv-activate require lint format test build install publish clean
+.PHONY: help install-uv venv venv-activate lint format test build install publish clean
 
-################################################################################                                                           
-## General commands:: ##                                                                                                                   
+################################################################################
+## General commands:: ##
 
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
 	@echo
 	@echo "TARGETs:"
-	@grep -E '^[a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?##"}; {printf "  %-14s %s\n", $$1, $$2}'
 
-################################################################################                                                           
-## Setup:: ##                                                                                                                              
+	@# capture section headers and documented targets:
+	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
+	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-19s%s\n", $$1, $$2}' \
+	| sed -E 's/^ *#+/\n/g' \
+	| sed -E 's/ +$$//g' \
+	| sed -E 's/\\n/\n                      /g'
+
+	@# capture notes:
+	@grep -E '^##[^#]*$$' Makefile | sed -E 's/^## ?//g'
+
+################################################################################
+## Setup:: ##
 
 install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 	@if command -v uv >/dev/null 2>&1; then \
@@ -33,18 +41,19 @@ install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 		esac; \
 	fi
 
-venv: ## create the local virtual environment ($(VENV)) via uv (idempotent)
+_venv: # create the local venv via uv (idempotent)
 	@if [ -x $(VENV)/bin/python ]; then \
 		echo "$(VENV) already exists — not recreating."; \
 	else \
 		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
 	fi
 
-venv-activate: venv ## Activate .venv and start an interactive shell
+venv-activate: _venv ## sync deps into .venv and start an interactive shell with it activated
+	uv sync --extra dev
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
-require: venv ## install runtime + dev dependencies into the venv
-	uv sync --extra dev
+################################################################################
+## Quality:: ##
 
 lint: ## run ruff lint
 	uv run ruff check src
@@ -55,6 +64,9 @@ format: ## run ruff format (in-place)
 test: ## run pytest
 	uv run pytest
 
+################################################################################
+## Build and install:: ##
+
 build: ## build wheel + sdist into dist/
 	uv build
 
@@ -63,6 +75,9 @@ install: ## install CLI globally (puts claude-busy-monitor on ~/.local/bin/)
 
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
+
+################################################################################
+## Cleanup:: ##
 
 clean: ## remove venv, build artefacts, caches
 	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
