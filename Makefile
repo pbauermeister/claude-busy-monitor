@@ -61,6 +61,23 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
+.PHONY: check
+check: lint test-full ## run lint + test-full (CI / pre-PR convenience)
+
+.PHONY: cycle
+cycle: ## full cycle: uninstall, clean, lint, test, install (1)
+	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	-$(MAKE) uninstall
+	$(MAKE) clean
+	$(MAKE) lint
+	$(MAKE) test
+	$(MAKE) install
+
+################################################################################
+## Tests:: ##
+
 .PHONY: test-unit
 test-unit: ## run unit tests (fast, no I/O)
 	uv sync --extra dev
@@ -81,20 +98,6 @@ test-full: test-unit test-smoke ## unit + smoke (fast default)
 
 .PHONY: test
 test: test-full ## alias for test-full
-
-.PHONY: check
-check: lint test-full ## run lint + test-full (CI / pre-PR convenience)
-
-.PHONY: cycle
-cycle: ## full cycle: uninstall, clean, lint, test, install (1)
-	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
-	@echo "Ctrl-C within 2 seconds to abort."
-	@sleep 2
-	-$(MAKE) uninstall
-	$(MAKE) clean
-	$(MAKE) lint
-	$(MAKE) test
-	$(MAKE) install
 
 ################################################################################
 ## Build and install:: ##
