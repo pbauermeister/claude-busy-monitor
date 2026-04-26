@@ -40,6 +40,21 @@ After this task: `from claude_busy_monitor import ClaudeSession, ClaudeState, ge
 - **Monolith deletion**: `git rm claude_busy_monitor.py` in the same commit as the structure flip — no transition window where both exist.
 - **`README-STATE-DETECTION.md` update**: replace `claude_busy_monitor.py` references with `src/claude_busy_monitor/_core.py`; keep the inline `(see README §A1)` style intact (the section anchors don't change).
 
+Planned tree (changes only):
+
+```
+.
+├── CHANGES.md                          (new)
+├── Makefile                            (modified — `install` target)
+├── README-STATE-DETECTION.md           (modified — path refs)
+├── claude_busy_monitor.py              (deleted)
+├── pyproject.toml                      (modified — dynamic version)
+└── src/claude_busy_monitor/
+    ├── __init__.py                     (rewritten — re-exports + __version__)
+    ├── _cli.py                         (rewritten — real CLI + ANSI rendering)
+    └── _core.py                        (new — types, probing, transcript, public API)
+```
+
 ### 1.6 Test plan / fixtures
 
 Test scaffold is TODO #2 (deferred). For this task, verification is operational:
