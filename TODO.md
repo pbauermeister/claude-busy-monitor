@@ -8,14 +8,9 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 ## TODO Items
 
-### 1. Build skeleton: pyproject, venv, Makefile, ruff, VS Code
+<!-- Item 1 (build skeleton) graduated to GH issue #1 — see architecture/devlog/0001-build-skeleton.md -->
 
-1. Build system: `uv` + `hatchling` backend, single `pyproject.toml`. Structure inspired by `~/dev-pb/dfd` (aka DFD) but using a more modern pattern.
-2. `Makefile` drives all development. Targets: `venv` (create/enter venv), `require` (install dependencies, assumes venv activated), `lint`, `format`, `test`, `build`, `publish`, `clean`.
-3. Lint and reformatting use `ruff`.
-4. VS Code format-on-save: Python via `ruff`, Markdown via `prettier`.
-
-### 2. Split monolith into installable library + CLI
+### 1. Split monolith into installable library + CLI
 
 1. Currently, all is implemented in `claude_busy_monitor.py`. Restructure into an installable library that programs can use as:
 
@@ -45,22 +40,22 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 4. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
 
-### 3. Test scaffold + testability discussion
+### 2. Test scaffold + testability discussion
 
 1. Initial `tests/` layout and a minimal smoke test.
 2. Testability discussion: what to test, fixtures vs. live `~/.claude/projects/...`, snapshot vs. structural assertions.
 3. GitHub Action for tests is NOT created yet — deferred until this discussion concludes.
 
-### 4. README polish
+### 3. README polish
 
 1. Main `README.md` shall be clean and engaging, like DFD or better.
 
-### 5. PyPI publish
+### 4. PyPI publish
 
-1. Publication to PyPI via the `Makefile` `publish` target (added in task 1).
+1. Publication to PyPI via the `Makefile` `publish` target (added in GH #1).
 2. May only be called/tested by the user.
 
-### 6. Install template for GH tickets (bug, feature request)
+### 5. Install template for GH tickets (bug, feature request)
 
 Gradually use GH tickets instead of TODO.md.
 
