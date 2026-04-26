@@ -1,5 +1,5 @@
 # Just type 'make' to get help.
-# First run on a fresh box: 'make install-uv', then 'make help'.
+# First run on a fresh box: 'make require', then 'make help'.
 
 SHELL := /bin/bash
 VENV  ?= .venv
@@ -26,8 +26,8 @@ help: ## print this help
 ################################################################################
 ## Setup:: ##
 
-.PHONY: install-uv
-install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
+.PHONY: require
+require: ## install uv (idempotent; Linux/macOS via Astral installer)
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "uv already installed: $$(uv --version)"; \
 	else \
