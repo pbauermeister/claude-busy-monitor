@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 VENV  ?= .venv
 
-.PHONY: help install-uv venv venv-activate require lint format test build publish clean
+.PHONY: help install-uv venv venv-activate require lint format test build install publish clean
 
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
@@ -51,6 +51,9 @@ test: ## run pytest
 
 build: ## build wheel + sdist into dist/
 	uv build
+
+install: ## install CLI globally (puts claude-busy-monitor on ~/.local/bin/)
+	uv tool install --force .
 
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-busy-monitor"
-version = "0.0.1"
+dynamic = ["version"]
 description = "List active Claude sessions for the current user with their state."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -35,6 +35,11 @@ claude-busy-monitor = "claude_busy_monitor._cli:main"
 [project.urls]
 Homepage = "https://github.com/pbauermeister/claude-busy-monitor"
 Issues = "https://github.com/pbauermeister/claude-busy-monitor/issues"
+
+[tool.hatch.version]
+source = "regex"
+path = "CHANGES.md"
+pattern = '^## Version (?P<version>\d+\.\d+\.\d+):'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/claude_busy_monitor"]
