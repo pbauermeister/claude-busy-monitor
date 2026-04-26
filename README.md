@@ -51,10 +51,11 @@ PyPI publish is on the roadmap; until then, the install path is `git` + `make`:
 ```bash
 git clone https://github.com/pbauermeister/claude-busy-monitor.git
 cd claude-busy-monitor
+make require   # installs uv if missing (idempotent; Linux/macOS)
 make install   # installs the CLI globally via `uv tool install .`
 ```
 
-Prerequisites: Python 3.11+ and [`uv`](https://github.com/astral-sh/uv) on your `PATH` (one-line install: `pipx install uv`).
+Only prerequisite is Python 3.11+; `make require` bootstraps [`uv`](https://github.com/astral-sh/uv) for you.
 
 To work on the project itself rather than just use it, run `make venv-activate` instead — it creates `.venv`, syncs dev deps, and drops you into an activated shell.
 `make help` lists every Makefile target (lint, format, test-unit / smoke / e2e, build).
