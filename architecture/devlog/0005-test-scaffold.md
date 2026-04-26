@@ -94,7 +94,7 @@ Out: CI workflow (follow-up); README polish (TODO #2); PyPI publish (TODO #3); G
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -140,7 +140,7 @@ Within charter scope.
 ### 3.5 Test review
 
 - _Coverage_: every test seed from #3 § 3.7 has at least one landing test. Seeds 1-6 in unit; 7-9 in smoke; 10-11 in e2e (10 covered by smoke `test_cli_emits_summary_line_for_all_three_states` and 11 by mocked e2e). Seed 7 doubles as regression for the `--reinstall` cache bug (#3); seed 8 doubles as regression for the `uninstall-legacy` asymmetry bug (#3).
-- _Effectiveness_: seed 6 unit test caught a real bug — `get_state_counts(sessions=[])` returning the live-system state instead of zeros (fixed in same commit, §  3.1).
+- _Effectiveness_: seed 6 unit test caught a real bug — `get_state_counts(sessions=[])` returning the live-system state instead of zeros (fixed in same commit, § 3.1).
 
 ### 3.6 Gate check
 
@@ -150,14 +150,14 @@ Within charter scope.
 
 ### 3.7 Retrospective
 
-| #   | Point                                                                                  | Agent    | User |
-| --- | -------------------------------------------------------------------------------------- | -------- | ---- |
-| 1   | Test scaffold caught a real production bug in `get_state_counts` on first run          | well     |      |
-| 2   | Mocked e2e + real-CC split keeps `make test-e2e` token-free by default                 | well     |      |
-| 3   | Real-CC dummy A/B/C shipped as xfail rather than untested speculative code             | well     |      |
-| 4   | help-grep `0-9` gap surfaced only when `test-e2e` was added — should've been spotted   | not well |      |
-| 5   | Per-target inline `uv sync --extra dev` makes test targets self-bootstrap on a clean box | well     |      |
-| 6   | `make test-e2e` opt-in via env var pattern is reusable for future cost-bearing tests   | surprise |      |
+| #   | Point                                                                                    | Agent    | User |
+| --- | ---------------------------------------------------------------------------------------- | -------- | ---- |
+| 1   | Test scaffold caught a real production bug in `get_state_counts` on first run            | well     | well |
+| 2   | Mocked e2e + real-CC split keeps `make test-e2e` token-free by default                   | well     | well |
+| 3   | Real-CC dummy A/B/C shipped as xfail rather than untested speculative code               | well     | well |
+| 4   | help-grep `0-9` gap surfaced only when `test-e2e` was added — should've been spotted     | not well | well |
+| 5   | Per-target inline `uv sync --extra dev` makes test targets self-bootstrap on a clean box | well     | well |
+| 6   | `make test-e2e` opt-in via env var pattern is reusable for future cost-bearing tests     | surprise | well |
 
 ### 3.8 Demo scenario (actual)
 
@@ -201,32 +201,32 @@ CLAUDE_E2E_REAL=1 make test-e2e
 
 ## Governance trace
 
-| #   | Requirement                  | Source                     | How met                                              |
-| --- | ---------------------------- | -------------------------- | ---------------------------------------------------- |
-| 1   | Devlog entry                 | charter § 12.7 / CLAUDE.md | `architecture/devlog/0005-test-scaffold.md`          |
-| 2   | GH issue with category tag   | CLAUDE.md                  | #5 (`[impl]`)                                        |
-| 3   | Branch from main             | CLAUDE.md                  | `impl/0005-test-scaffold`                            |
-| 4   | Mandate review gate          | CEREMONIES § Task start    | § 1 + § 2 user-attested before code                  |
-| 5   | Author/Model/Review metadata | charter § 12.1             | per-section blocks present                           |
-| 6   | Acceptance criteria          | charter § 12.7             | § 1.7 (9 criteria)                                   |
-| 7   | Test plan in mandate         | CEREMONIES § Task start    | § 1.6 (this task IS the test plan)                   |
-| 8   | Coverage check               | charter § 12.5             | § 1.8 + § 3.4                                        |
-| 9   | Test review at closure       | CEREMONIES § Task closure  | § 3.5                                                |
-| 10  | Demo scenario                | CEREMONIES § Task closure  | § 3.8 (mocked variant + real-CC opt-in)              |
-| 11  | Retrospective voting table   | CEREMONIES § Task closure  | § 3.7                                                |
-| 12  | Forward-looking check        | CEREMONIES § Task closure  | § 3.9                                                |
-| 13  | Verdict (self-assessment)    | devlog/CLAUDE.md           | § 3.10                                               |
-| 14  | Framework reuse trigger      | CLAUDE.md                  | § 1.5 (pexpect for interactive-CLI driving)          |
+| #   | Requirement                  | Source                     | How met                                     |
+| --- | ---------------------------- | -------------------------- | ------------------------------------------- |
+| 1   | Devlog entry                 | charter § 12.7 / CLAUDE.md | `architecture/devlog/0005-test-scaffold.md` |
+| 2   | GH issue with category tag   | CLAUDE.md                  | #5 (`[impl]`)                               |
+| 3   | Branch from main             | CLAUDE.md                  | `impl/0005-test-scaffold`                   |
+| 4   | Mandate review gate          | CEREMONIES § Task start    | § 1 + § 2 user-attested before code         |
+| 5   | Author/Model/Review metadata | charter § 12.1             | per-section blocks present                  |
+| 6   | Acceptance criteria          | charter § 12.7             | § 1.7 (9 criteria)                          |
+| 7   | Test plan in mandate         | CEREMONIES § Task start    | § 1.6 (this task IS the test plan)          |
+| 8   | Coverage check               | charter § 12.5             | § 1.8 + § 3.4                               |
+| 9   | Test review at closure       | CEREMONIES § Task closure  | § 3.5                                       |
+| 10  | Demo scenario                | CEREMONIES § Task closure  | § 3.8 (mocked variant + real-CC opt-in)     |
+| 11  | Retrospective voting table   | CEREMONIES § Task closure  | § 3.7                                       |
+| 12  | Forward-looking check        | CEREMONIES § Task closure  | § 3.9                                       |
+| 13  | Verdict (self-assessment)    | devlog/CLAUDE.md           | § 3.10                                      |
+| 14  | Framework reuse trigger      | CLAUDE.md                  | § 1.5 (pexpect for interactive-CLI driving) |
 
 ## Resource consumption
 
-| Metric                   | Value                                                                                     |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| Wall time                | ~3 h (devlog, scaffold, unit, smoke, Makefile, e2e, closure)                              |
-| LOC changed              | +890 / -6 (`git diff main...HEAD --stat`, incl. devlog)                                   |
-| Files changed            | 15 (excl. devlog): pyproject, Makefile, _sessions.py, 11 new test modules, 1 rename       |
-| Commits on branch        | 7 agent + 1 user attestation                                                              |
-| Pre-commit hook failures | 0                                                                                         |
-| Subagent invocations     | 0                                                                                         |
-| `/clear` events          | 0                                                                                         |
-| Memory rotation events   | 0                                                                                         |
+| Metric                   | Value                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| Wall time                | ~3 h (devlog, scaffold, unit, smoke, Makefile, e2e, closure)                         |
+| LOC changed              | +890 / -6 (`git diff main...HEAD --stat`, incl. devlog)                              |
+| Files changed            | 15 (excl. devlog): pyproject, Makefile, \_sessions.py, 11 new test modules, 1 rename |
+| Commits on branch        | 7 agent + 1 user attestation                                                         |
+| Pre-commit hook failures | 0                                                                                    |
+| Subagent invocations     | 0                                                                                    |
+| `/clear` events          | 0                                                                                    |
+| Memory rotation events   | 0                                                                                    |
