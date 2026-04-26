@@ -1,19 +1,33 @@
 # Just type 'make' to get help.
-# First run on a fresh box: 'make install-uv', then 'make help'.
+# First run on a fresh box: 'make require', then 'make help'.
 
 SHELL := /bin/bash
 VENV  ?= .venv
 
-.PHONY: help install-uv venv venv-activate require lint format test build publish clean
+################################################################################
+## General commands:: ##
 
+.PHONY: help
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
 	@echo
 	@echo "TARGETs:"
-	@grep -E '^[a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?##"}; {printf "  %-14s %s\n", $$1, $$2}'
 
-install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
+	@# capture section headers and documented targets:
+	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
+	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-18s%s\n", $$1, $$2}' \
+	| sed -E 's/^ *#+/\n/g' \
+	| sed -E 's/ +$$//g' \
+	| sed -E 's/\\n/\n                      /g'
+
+	@# capture notes:
+	@grep -E '^##[^#]*$$' Makefile | sed -E 's/^## ?//g'
+
+################################################################################
+## Setup:: ##
+
+.PHONY: require
+require: ## install uv (idempotent; Linux/macOS via Astral installer)
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "uv already installed: $$(uv --version)"; \
 	else \
@@ -27,34 +41,84 @@ install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 		esac; \
 	fi
 
-venv: ## create the local virtual environment ($(VENV)) via uv (idempotent)
-	@if [ -x $(VENV)/bin/python ]; then \
-		echo "$(VENV) already exists — not recreating."; \
-	else \
-		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
-	fi
-
-venv-activate: venv ## Activate .venv and start an interactive shell
+.PHONY: venv-activate
+venv-activate: ## start an interactive shell in updated .venv
+	uv sync --extra dev
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
-require: venv ## install runtime + dev dependencies into the venv
+################################################################################
+## Quality:: ##
+
+.PHONY: lint
+lint: ## ruff check + format-check (read-only)
 	uv sync --extra dev
-
-lint: ## run ruff lint
 	uv run ruff check src
+	uv run ruff format --check src
 
-format: ## run ruff format (in-place)
+.PHONY: format
+format: ## ruff format + lint autofix (modifies code)
+	uv sync --extra dev
 	uv run ruff format src
+	uv run ruff check --fix src
 
+.PHONY: test
 test: ## run pytest
+	uv sync --extra dev
 	uv run pytest
 
-build: ## build wheel + sdist into dist/
+.PHONY: check
+check: lint test ## run lint + test (CI / pre-PR convenience)
+
+.PHONY: cycle
+cycle: ## full cycle: uninstall, clean, lint, test, install (1)
+	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	-$(MAKE) uninstall
+	$(MAKE) clean
+	$(MAKE) lint
+	$(MAKE) test
+	$(MAKE) install
+
+################################################################################
+## Build and install:: ##
+
+.PHONY: build
+build: lint ## build wheel + sdist into dist/
 	uv build
 
+.PHONY: install
+install: ## install in the user's account (CLI on ~/.local/bin/)
+	uv tool install --reinstall .
+
+.PHONY: uninstall
+uninstall: ## uninstall from the user's account
+	uv tool uninstall claude-busy-monitor
+
+.PHONY: install-legacy
+install-legacy: ## install lib user-wide (2)
+	uv pip install --user . || pip install --user --break-system-packages .
+
+.PHONY: uninstall-legacy
+uninstall-legacy: ## uninstall lib user-wide (2)
+	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
+
+.PHONY: publish
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
 
+################################################################################
+## Cleanup:: ##
+
+.PHONY: clean
 clean: ## remove venv, build artefacts, caches
 	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+
+
+################################################################################
+##
+## Notes:
+## - All targets activate .venv for themselves.
+## - (1) modifies user account.
+## - (2) temporary hack for Python code not using venv.

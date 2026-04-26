@@ -9,10 +9,8 @@ List active Claude sessions for the current user with their state.
 Prerequisite: [`uv`](https://github.com/astral-sh/uv) on your `PATH` (one-line install: `pipx install uv` or follow the upstream installer).
 
 ```bash
-make venv
-source .venv/bin/activate
-make require
+make venv-activate
 make help
 ```
 
-`make help` lists every available target.
+`make venv-activate` creates `.venv`, syncs dependencies, and drops you into an activated shell. `make help` lists every available target. Tooling targets (`lint`, `format`, `test`, `build`) work outside the shell too — they run via `uv run`, which handles syncing implicitly.

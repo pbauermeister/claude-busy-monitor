@@ -1,9 +1,9 @@
 # Claude session state detection — design notes
 
-Companion to `claude_busy_monitor.py`. **Read this first** before changing the
-classifier or reacting to misclassification reports. Everything documented
-here was reverse-engineered from a live Claude Code install (no public
-schema); each section names the code site that depends on it and the
+Companion to `src/claude_busy_monitor/_sessions.py`. **Read this first** before
+changing the classifier or reacting to misclassification reports. Everything
+documented here was reverse-engineered from a live Claude Code install (no
+public schema); each section names the code site that depends on it and the
 diagnostic symptom that appears when the underlying assumption drifts.
 
 ## Strategy
