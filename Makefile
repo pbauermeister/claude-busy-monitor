@@ -15,7 +15,7 @@ help: ## print this help
 
 	@# capture section headers and documented targets:
 	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
-	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-19s%s\n", $$1, $$2}' \
+	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-14s%s\n", $$1, $$2}' \
 	| sed -E 's/^ *#+/\n/g' \
 	| sed -E 's/ +$$//g' \
 	| sed -E 's/\\n/\n                      /g'
@@ -74,6 +74,17 @@ test: ## run pytest
 .PHONY: check
 check: lint test ## run lint + test (CI / pre-PR convenience)
 
+.PHONY: cycle
+cycle: ## full cycle: uninstall, clean, lint, test, install (1)
+	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	-$(MAKE) uninstall
+	$(MAKE) clean
+	$(MAKE) lint
+	$(MAKE) test
+	$(MAKE) install
+
 ################################################################################
 ## Build and install:: ##
 
@@ -93,17 +104,6 @@ uninstall: ## uninstall from the user's account
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
 
-.PHONY: cycle
-cycle: ## full cycle: uninstall, clean, lint, test, install (modifies user account)
-	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
-	@echo "Ctrl-C within 2 seconds to abort."
-	@sleep 2
-	-$(MAKE) uninstall
-	$(MAKE) clean
-	$(MAKE) lint
-	$(MAKE) test
-	$(MAKE) install
-
 ################################################################################
 ## Cleanup:: ##
 
@@ -117,3 +117,4 @@ clean: ## remove venv, build artefacts, caches
 ##
 ## Notes:
 ## - All targets activate .venv for themselves.
+## - (1) modifies user account
