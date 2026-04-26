@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "claude-busy-monitor"
+version = "0.0.1"
+description = "List active Claude sessions for the current user with their state."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+authors = [{ name = "Pascal Bauermeister", email = "pascal.bauermeister@gmail.com" }]
+keywords = ["claude", "monitoring", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: System :: Monitoring",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+claude-busy-monitor = "claude_busy_monitor._cli:main"
+
+[project.urls]
+Homepage = "https://github.com/pbauermeister/claude-busy-monitor"
+Issues = "https://github.com/pbauermeister/claude-busy-monitor/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claude_busy_monitor"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = ["I"]
