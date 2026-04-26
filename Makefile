@@ -3,20 +3,37 @@
 SHELL := /bin/bash
 VENV  ?= .venv
 
-.PHONY: help venv require lint format test build publish clean
+.PHONY: help install-uv venv venv-activate require lint format test build publish clean
 
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
 	@echo
 	@echo "TARGETs:"
 	@grep -E '^[a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?##"}; {printf "  %-12s %s\n", $$1, $$2}'
+		| awk 'BEGIN {FS = ":.*?##"}; {printf "  %-14s %s\n", $$1, $$2}'
 
-venv: ## create the local virtual environment ($(VENV)/) via uv
+install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
+	@if command -v uv >/dev/null 2>&1; then \
+		echo "uv already installed: $$(uv --version)"; \
+	else \
+		case "$$(uname -s)" in \
+			Linux|Darwin) \
+				curl -LsSf https://astral.sh/uv/install.sh | sh ;; \
+			MINGW*|MSYS*|CYGWIN*) \
+				echo "Windows detected. Run: winget install astral-sh.uv"; exit 1 ;; \
+			*) \
+				echo "Unsupported OS: $$(uname -s). See https://docs.astral.sh/uv/getting-started/installation/"; exit 1 ;; \
+		esac; \
+	fi
+
+venv: ## create the local virtual environment ($(VENV)) via uv
 	uv venv $(VENV)
 	@echo
 	@echo "Now please run:"
 	@echo "  source $(VENV)/bin/activate"
+
+venv-activate: ## Activate .venv and start an interactive shell
+	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
 require: ## install runtime + dev dependencies into the venv
 	uv sync --extra dev
