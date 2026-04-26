@@ -11,17 +11,14 @@ This file captures items as they arise during work, so nothing is forgotten with
 <!-- Item 1 (build skeleton) graduated to GH issue #1 — see architecture/devlog/0001-build-skeleton.md -->
 <!-- Item 1 (split monolith) graduated to GH issue #3 — see architecture/devlog/0003-split-monolith.md -->
 <!-- Item 1 (test scaffold) graduated to GH issue #5 — see architecture/devlog/0005-test-scaffold.md -->
+<!-- Item 1 (README polish) graduated to GH issue #7 — see architecture/devlog/0007-readme-polish.md -->
 
-### 1. README polish
-
-1. Main `README.md` shall be clean and engaging, like DFD or better.
-
-### 2. PyPI publish
+### 1. PyPI publish
 
 1. Publication to PyPI via the `Makefile` `publish` target (added in GH #1).
 2. May only be called/tested by the user.
 
-### 3. Install template for GH tickets (bug, feature request)
+### 2. Install template for GH tickets (bug, feature request)
 
 Gradually use GH tickets instead of TODO.md.
 
