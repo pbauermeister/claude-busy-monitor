@@ -6,12 +6,18 @@ VENV  ?= .venv
 
 .PHONY: help install-uv venv venv-activate require lint format test build install publish clean
 
+################################################################################                                                           
+## General commands:: ##                                                                                                                   
+
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
 	@echo
 	@echo "TARGETs:"
 	@grep -E '^[a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?##"}; {printf "  %-14s %s\n", $$1, $$2}'
+
+################################################################################                                                           
+## Setup:: ##                                                                                                                              
 
 install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 	@if command -v uv >/dev/null 2>&1; then \
