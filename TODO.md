@@ -8,49 +8,65 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 ## TODO Items
 
-### 1. Scaffolding this GitHub project.
+### 1. Build skeleton: pyproject, venv, Makefile, ruff, VS Code
 
-1. The goal of this repo is to create a Python library and program providing the following:
-   - The library provides `get_sessions() -> list[ClaudeSession]`
-     and `get_state_counts() -> dict[ClaudeState, int]`
-   - The program lists a summary of states and sessions, that can be called by `watch`:
+1. Build system: `uv` + `hatchling` backend, single `pyproject.toml`. Structure inspired by `~/dev-pb/dfd` (aka DFD) but using a more modern pattern.
+2. `Makefile` drives all development. Targets: `venv` (create/enter venv), `require` (install dependencies, assumes venv activated), `lint`, `format`, `test`, `build`, `publish`, `clean`.
+3. Lint and reformatting use `ruff`.
+4. VS Code format-on-save: Python via `ruff`, Markdown via `prettier`.
 
-     ```
-     0 busy   1 asking   3 idle
+### 2. Split monolith into installable library + CLI
 
-     d956ca8c3d42   idle   stekip-ai-mvp                 out:230.5K  in: 72.5M   33 t/s
-     2be809b5f314   idle   client-py                     out:  5.5K  in:  1.1M        —
-     a0e233458c35   idle   claude-busy-monitor           out:  6.0K  in:175.7K  109 t/s
-     8aa45875c04f  asking  client-py                     out:  1.7K  in:279.1K        —
-     ```
+1. Currently, all is implemented in `claude_busy_monitor.py`. Restructure into an installable library that programs can use as:
 
-2. Currently, all is implemented in `claude_busy_monitor.py`. The goal is to structure this repo to provide:
-   - An installable library, that programs can use as:
-     ```
-     from claude_busy_monitor import (
-         ClaudeSession,
-         ClaudeState,
-         get_sessions,
-         get_state_counts,
-     )
-     ```
-   - A shell-callable program: `claude-busy-monitor`.
-   - After all the created structure is created, the original `claude_busy_monitor.py` has to be deleted.
+   ```python
+   from claude_busy_monitor import (
+       ClaudeSession,
+       ClaudeState,
+       get_sessions,
+       get_state_counts,
+   )
+   ```
 
-3. A build system, inspired from project `/home/pascal/dev-pb/dfd` (aka DFD).
+2. Library API:
+   - `get_sessions() -> list[ClaudeSession]`
+   - `get_state_counts() -> dict[ClaudeState, int]`
 
-4. Publication to PyPi. May only be called/tested by the user.
+3. Shell-callable program `claude-busy-monitor` that lists a summary of states and sessions, callable by `watch`:
 
-5. All development, including test, lint and publication shall be managed by the `Makefile`.
-   - For development, Python virtual env targets are provided to create/enter venv
-   - For development, `require` target installs the requirements (supposing venv activated)
+   ```
+   0 busy   1 asking   3 idle
 
-6. Lint and reformatting shall use `ruff`.
+   d956ca8c3d42   idle   stekip-ai-mvp                 out:230.5K  in: 72.5M   33 t/s
+   2be809b5f314   idle   client-py                     out:  5.5K  in:  1.1M        —
+   a0e233458c35   idle   claude-busy-monitor           out:  6.0K  in:175.7K  109 t/s
+   8aa45875c04f  asking  client-py                     out:  1.7K  in:279.1K        —
+   ```
 
-7. Build may be inspired by project DFD, or a more modern pattern.
+4. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
 
-8. A GitHub action shall not yet be created for tests, as testability must be first discussed.
+### 3. Test scaffold + testability discussion
 
-9. The main README.md shall be clean and engaging, like DFD or better.
+1. Initial `tests/` layout and a minimal smoke test.
+2. Testability discussion: what to test, fixtures vs. live `~/.claude/projects/...`, snapshot vs. structural assertions.
+3. GitHub Action for tests is NOT created yet — deferred until this discussion concludes.
 
-10. For vscode, format-on-save: for Python with ruff, for markdown with prettier.
+### 4. README polish
+
+1. Main `README.md` shall be clean and engaging, like DFD or better.
+
+### 5. PyPI publish
+
+1. Publication to PyPI via the `Makefile` `publish` target (added in task 1).
+2. May only be called/tested by the user.
+
+### 6. Install template for GH tickets (bug, feature request)
+
+Gradually use GH tickets instead of TODO.md.
+
+Later features include:
+
+- Extract classification documentation from Python code comment sections to a separate README.
+- Clarify that the classification is based on empirical findings, Claude Code version-dependant.
+- Currently works for Linux. OSX support to be envisaged.
+- Currently works with Claude Code v2.1.119. Version compatibility to be discussed.
