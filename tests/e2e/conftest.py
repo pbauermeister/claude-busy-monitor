@@ -14,6 +14,7 @@ Together they ensure no e2e fixture ever touches the user's real
 """
 
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -33,6 +34,30 @@ def isolated_home(tmp_path, monkeypatch):
     monkeypatch.setattr("claude_busy_monitor._sessions.SESSIONS_DIR", sessions_dir)
     monkeypatch.setattr("claude_busy_monitor._sessions.PROJECTS_DIR", projects_dir)
     return home
+
+
+@pytest.fixture
+def tmp_workspace(tmp_path):
+    """Throwaway project workspace under tmpdir — without overriding HOME.
+
+    Use this for real-Claude-Code tests so spawned `claude` processes
+    inherit the user's real `~/.claude/.credentials.json` (no fresh login
+    required). Sessions/transcripts land in the user's real `~/.claude/`;
+    tests filter the classifier output by cwd to scope assertions to
+    dummies launched inside this workspace. On teardown, the fixture
+    removes any `~/.claude/projects/<encoded-cwd>/` transcript dirs the
+    dummies created — identified by the encoded workspace prefix.
+    """
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    yield workspace
+    # Teardown: remove transcript dirs the dummies wrote into real ~/.claude/.
+    real_projects = Path(os.path.expanduser("~/.claude/projects"))
+    if real_projects.is_dir():
+        encoded_prefix = str(workspace).replace("/", "-")
+        for child in real_projects.iterdir():
+            if child.name.startswith(encoded_prefix):
+                shutil.rmtree(child, ignore_errors=True)
 
 
 def assert_no_real_claude_state_touched(home: Path) -> None:

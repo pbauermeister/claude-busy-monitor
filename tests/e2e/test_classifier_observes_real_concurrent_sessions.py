@@ -33,21 +33,25 @@ CLAUDE_AVAILABLE = shutil.which("claude") is not None
 pytestmark = [
     pytest.mark.skipif(
         not REAL_E2E_ENABLED,
-        reason="CLAUDE_E2E_REAL=1 required (this test consumes Claude API tokens)",
+        reason="CLAUDE_E2E_REAL=1 required (this test spawns real Claude Code)",
     ),
     pytest.mark.skipif(not CLAUDE_AVAILABLE, reason="`claude` binary not on PATH"),
 ]
 
 
-def _spawn_dummy(name: str, home: Path):
-    """Spawn one `claude` process inside a throwaway project under HOME."""
-    project = home / "projects" / name
+def _spawn_dummy(name: str, workspace: Path):
+    """Spawn one `claude` process inside a throwaway project under workspace.
+
+    HOME is *not* overridden — `claude` inherits the user's real auth
+    (`~/.claude/.credentials.json`) so no fresh login is needed.
+    Sessions/transcripts land in real `~/.claude/`; the test filters by
+    cwd to scope assertions to its own dummies.
+    """
+    project = workspace / name
     project.mkdir(parents=True)
-    env = {**os.environ, "HOME": str(home)}
     return pexpect.spawn(
         "claude",
         cwd=str(project),
-        env=env,
         encoding="utf-8",
         timeout=60,
     )
@@ -73,45 +77,52 @@ def _drive_dummy(child, label: str) -> None:
 
 
 @pytest.mark.xfail(reason="Real CC keystroke + TUI sync details pending one iteration cycle")
-def test_classifier_observes_dummy_a_b_c_concurrent(isolated_home):
-    """Per #5 § 3.X: A starts now; B starts +5s; C starts +10s. Assert states."""
-    children = {}
-    threads = []
+def test_classifier_observes_dummy_a_b_c_concurrent(tmp_workspace):
+    """Per #5 § 3.X: A starts now; B starts +5s; C starts +10s. Assert states.
+
+    Filters classifier output by cwd to scope assertions to dummies
+    spawned inside `tmp_workspace`, ignoring any pre-existing live
+    Claude sessions on the user's machine.
+    """
+    workspace_prefix = str(tmp_workspace)
+    children: dict[str, "pexpect.spawn"] = {}
+    threads: list[threading.Thread] = []
 
     def start_after(label: str, delay: float):
         time.sleep(delay)
-        children[label] = _spawn_dummy(label, isolated_home)
+        children[label] = _spawn_dummy(label, tmp_workspace)
         _drive_dummy(children[label], label)
 
-    for label, delay in [("A", 0.0), ("B", 5.0), ("C", 10.0)]:
-        t = threading.Thread(target=start_after, args=(label, delay), daemon=True)
-        t.start()
-        threads.append(t)
+    try:
+        for label, delay in [("A", 0.0), ("B", 5.0), ("C", 10.0)]:
+            t = threading.Thread(target=start_after, args=(label, delay), daemon=True)
+            t.start()
+            threads.append(t)
 
-    # Sample classifier state across the timeline.
-    samples: list[dict] = []
-    deadline = time.monotonic() + 35.0
-    while time.monotonic() < deadline:
-        sessions = get_sessions()
-        samples.append({s.name: s.state for s in sessions})
-        time.sleep(1.0)
+        # Sample classifier state across the timeline (filter by cwd).
+        samples: list[dict] = []
+        deadline = time.monotonic() + 35.0
+        while time.monotonic() < deadline:
+            sessions = [s for s in get_sessions() if s.path.startswith(workspace_prefix)]
+            samples.append({s.name: s.state for s in sessions})
+            time.sleep(1.0)
 
-    # Drain threads.
-    for t in threads:
-        t.join(timeout=10.0)
+        for t in threads:
+            t.join(timeout=10.0)
 
-    # Tear down children.
-    for child in children.values():
-        try:
-            child.sendline("/exit")
-            child.expect(pexpect.EOF, timeout=5)
-        except pexpect.exceptions.TIMEOUT:
-            child.terminate(force=True)
-
-    # Assertions to tighten in the next iteration:
-    # 1. At some sample, all three sessions visible.
-    # 2. Each session passes through BUSY at least once.
-    # 3. End-of-timeline sample shows zero live sessions (all torn down).
-    assert any(len(s) == 3 for s in samples), "never saw 3 concurrent sessions"
-    states_seen = {state for sample in samples for state in sample.values()}
-    assert ClaudeState.BUSY in states_seen
+        # Assertions to tighten in the next iteration:
+        # 1. At some sample, all three dummy sessions visible.
+        # 2. Each session passes through BUSY at least once.
+        # 3. End-of-timeline sample shows zero live dummy sessions.
+        assert any(len(s) == 3 for s in samples), "never saw 3 concurrent dummies"
+        states_seen = {state for sample in samples for state in sample.values()}
+        assert ClaudeState.BUSY in states_seen
+    finally:
+        # Tear down children. Transcript-dir cleanup is the tmp_workspace
+        # fixture's responsibility (yield/teardown).
+        for child in children.values():
+            try:
+                child.sendline("/exit")
+                child.expect(pexpect.EOF, timeout=5)
+            except (pexpect.exceptions.TIMEOUT, pexpect.exceptions.EOF):
+                child.terminate(force=True)
