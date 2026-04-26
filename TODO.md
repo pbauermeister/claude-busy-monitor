@@ -43,7 +43,9 @@ This file captures items as they arise during work, so nothing is forgotten with
    - The state detection documentation originally in `README-STATE-DETECTION.md` shall be updated so that agents can continue to maintain/fix the state classification.
    - Shell-callable program shall use the library, and care for rendering (ANSI terminal, `watch` friendly, so base-ANSI colors).
 
-5. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
+5. Add a `make install` target installing the CLI globally via `uv tool install .` (puts `claude-busy-monitor` on `~/.local/bin/`, so the program runs outside the dev venv).
+
+6. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
 
 ### 2. Test scaffold + testability discussion
 
