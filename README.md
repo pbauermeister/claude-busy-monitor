@@ -5,6 +5,8 @@
 
 Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) session on your machine — which one is **busy**, which one is **asking** for your input, which one is **idle** — with cumulative token totals.
 
+Ships as a `claude-busy-monitor` CLI **and** a Python library (`get_sessions()`, `get_state_counts()`).
+
 ![claude-busy-monitor in action](images/hero.svg)
 
 ## Why
