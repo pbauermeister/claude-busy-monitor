@@ -41,37 +41,29 @@ require: ## install uv (idempotent; Linux/macOS via Astral installer)
 		esac; \
 	fi
 
-.PHONY: _venv
-_venv: # create the local venv via uv (idempotent)
-	@if [ -x $(VENV)/bin/python ]; then \
-		echo "$(VENV) already exists — not recreating."; \
-	else \
-		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
-	fi
-
-.PHONY: require-dev
-require-dev: _venv ## install dev/test deps into .venv (pytest, ruff)
-	uv sync --extra dev
-
 .PHONY: venv-activate
-venv-activate: require-dev ## start an interactive shell in updated .venv
+venv-activate: ## start an interactive shell in updated .venv
+	uv sync --extra dev
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
 ################################################################################
 ## Quality:: ##
 
 .PHONY: lint
-lint: require-dev ## ruff check + format-check (read-only)
+lint: ## ruff check + format-check (read-only)
+	uv sync --extra dev
 	uv run ruff check src
 	uv run ruff format --check src
 
 .PHONY: format
-format: require-dev ## ruff format + lint autofix (modifies code)
+format: ## ruff format + lint autofix (modifies code)
+	uv sync --extra dev
 	uv run ruff format src
 	uv run ruff check --fix src
 
 .PHONY: test
-test: require-dev ## run pytest
+test: ## run pytest
+	uv sync --extra dev
 	uv run pytest
 
 .PHONY: check
