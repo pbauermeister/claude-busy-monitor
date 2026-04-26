@@ -110,7 +110,7 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -194,14 +194,14 @@ Expected output: a state-summary line (busy / asking / idle counts, color-coded)
 
 ### 3.9 Retrospective
 
-| #   | Point                                                                      | Agent    | User |
-| --- | -------------------------------------------------------------------------- | -------- | ---- |
-| 1   | Mandate compression + planned tree caught design tensions before code      | well     |      |
-| 2   | Hatch regex source for version: clean, single source of truth              | well     |      |
-| 3   | `make install` no-build-dep deviation surfaced during impl, not in plan    | not well |      |
-| 4   | Test-seeds appendix doubled as forward-feed to TODO #2                     | well     |      |
-| 5   | Lean closure (~150-line target) feasible for mechanical splits             | well     |      |
-| 6   | Implementation phase ran straight-through, zero hook trips on impl commits | surprise |      |
+| #   | Point                                                                      | Agent    | User       |
+| --- | -------------------------------------------------------------------------- | -------- | ---------- |
+| 1   | Mandate compression + planned tree caught design tensions before code      | well     | well       |
+| 2   | Hatch regex source for version: clean, single source of truth              | well     | well       |
+| 3   | `make install` no-build-dep deviation surfaced during impl, not in plan    | not well | ended well |
+| 4   | Test-seeds appendix doubled as forward-feed to TODO #2                     | well     | well       |
+| 5   | Lean closure (~150-line target) feasible for mechanical splits             | well     | well       |
+| 6   | Implementation phase ran straight-through, zero hook trips on impl commits | surprise | don't care |
 
 ### 3.10 Forward-looking check
 
@@ -222,31 +222,31 @@ Expected output: a state-summary line (busy / asking / idle counts, color-coded)
 
 ## Governance trace
 
-| #   | Requirement                  | Source                     | How met                                              |
-| --- | ---------------------------- | -------------------------- | ---------------------------------------------------- |
-| 1   | Devlog entry                 | charter § 12.7 / CLAUDE.md | `architecture/devlog/0003-split-monolith.md`         |
-| 2   | GH issue with category tag   | CLAUDE.md                  | #3 (`[impl]`)                                        |
-| 3   | Branch from main             | CLAUDE.md                  | `impl/0003-split-monolith`                           |
-| 4   | Mandate review gate          | CEREMONIES § Task start    | § 1 + § 2 user-attested before code                  |
-| 5   | Author/Model/Review metadata | charter § 12.1             | per-section blocks present                           |
-| 6   | Acceptance criteria          | charter § 12.7             | § 1.7 (9 criteria)                                   |
-| 7   | Test plan in mandate         | CEREMONIES § Task start    | § 1.6 (operational; scaffold deferred to TODO #2)    |
-| 8   | Coverage check               | charter § 12.5             | § 1.8 + § 3.4                                        |
-| 9   | Test review at closure       | CEREMONIES § Task closure  | § 3.5                                                |
-| 10  | Demo scenario                | CEREMONIES § Task closure  | § 3.8                                                |
-| 11  | Retrospective voting table   | CEREMONIES § Task closure  | § 3.9                                                |
-| 12  | Forward-looking check        | CEREMONIES § Task closure  | § 3.10                                               |
-| 13  | Verdict (self-assessment)    | devlog/CLAUDE.md           | § 3.11                                               |
+| #   | Requirement                  | Source                     | How met                                           |
+| --- | ---------------------------- | -------------------------- | ------------------------------------------------- |
+| 1   | Devlog entry                 | charter § 12.7 / CLAUDE.md | `architecture/devlog/0003-split-monolith.md`      |
+| 2   | GH issue with category tag   | CLAUDE.md                  | #3 (`[impl]`)                                     |
+| 3   | Branch from main             | CLAUDE.md                  | `impl/0003-split-monolith`                        |
+| 4   | Mandate review gate          | CEREMONIES § Task start    | § 1 + § 2 user-attested before code               |
+| 5   | Author/Model/Review metadata | charter § 12.1             | per-section blocks present                        |
+| 6   | Acceptance criteria          | charter § 12.7             | § 1.7 (9 criteria)                                |
+| 7   | Test plan in mandate         | CEREMONIES § Task start    | § 1.6 (operational; scaffold deferred to TODO #2) |
+| 8   | Coverage check               | charter § 12.5             | § 1.8 + § 3.4                                     |
+| 9   | Test review at closure       | CEREMONIES § Task closure  | § 3.5                                             |
+| 10  | Demo scenario                | CEREMONIES § Task closure  | § 3.8                                             |
+| 11  | Retrospective voting table   | CEREMONIES § Task closure  | § 3.9                                             |
+| 12  | Forward-looking check        | CEREMONIES § Task closure  | § 3.10                                            |
+| 13  | Verdict (self-assessment)    | devlog/CLAUDE.md           | § 3.11                                            |
 
 ## Resource consumption
 
-| Metric                   | Value                                                                                     |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| Wall time                | ~2 h (devlog setup + impl + closure)                                                      |
-| LOC changed              | +121 / -91 (`git diff main...HEAD --stat`)                                                |
-| Files changed            | 8 (excl. devlog)                                                                          |
-| Commits on branch        | 4 (devlog open + tree + seeds + impl)                                                     |
-| Pre-commit hook failures | 1 (review-attestation hook on closure edit, resolved by Write fallback per CLAUDE.md)     |
-| Subagent invocations     | 0                                                                                         |
-| `/clear` events          | 0                                                                                         |
-| Memory rotation events   | 1 (`/compact` at session start)                                                           |
+| Metric                   | Value                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| Wall time                | ~2 h (devlog setup + impl + closure)                                                  |
+| LOC changed              | +121 / -91 (`git diff main...HEAD --stat`)                                            |
+| Files changed            | 8 (excl. devlog)                                                                      |
+| Commits on branch        | 4 (devlog open + tree + seeds + impl)                                                 |
+| Pre-commit hook failures | 1 (review-attestation hook on closure edit, resolved by Write fallback per CLAUDE.md) |
+| Subagent invocations     | 0                                                                                     |
+| `/clear` events          | 0                                                                                     |
+| Memory rotation events   | 1 (`/compact` at session start)                                                       |
