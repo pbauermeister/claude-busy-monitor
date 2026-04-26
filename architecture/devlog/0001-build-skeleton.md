@@ -93,7 +93,7 @@ Out of scope: splitting `claude_busy_monitor.py` (TODO #1), test scaffold (TODO 
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -150,14 +150,14 @@ claude-busy-monitor      # "claude-busy-monitor: scaffold only — see TODO #1"
 
 ### 3.7 Retrospective
 
-| #   | Point                                                                                           | Agent | User |
-| --- | ----------------------------------------------------------------------------------------------- | ----- | ---- |
-| 1   | Decomposing the original TODO #1 into 5 tasks before opening                                    | well  |      |
-| 2   | Discussing build-system framework before drafting § 2 (CLAUDE.md "Code-reuse" trigger)          | well  |      |
-| 3   | Mandate gate caught scope-creep proposals (smoke suite, make install, CHANGES.md) and deferred  | well  |      |
-| 4   | Multiple force-pushes to scrub historical commit-message references — cost of late-discovered hygiene | not well |      |
-| 5   | `make test` exits 5 when no tests — pytest convention                                           | surprise |    |
-| 6   | `uv` install path on agent host — copied from venv vs. system installer denied                  | surprise |    |
+| #   | Point                                                                                                 | Agent    | User       |
+| --- | ----------------------------------------------------------------------------------------------------- | -------- | ---------- |
+| 1   | Decomposing the original TODO #1 into 5 tasks before opening                                          | well     | well       |
+| 2   | Discussing build-system framework before drafting § 2 (CLAUDE.md "Code-reuse" trigger)                | well     | well       |
+| 3   | Mandate gate caught scope-creep proposals (smoke suite, make install, CHANGES.md) and deferred        | well     | well       |
+| 4   | Multiple force-pushes to scrub historical commit-message references — cost of late-discovered hygiene | not well | ended well |
+| 5   | `make test` exits 5 when no tests — pytest convention                                                 | surprise | surprise   |
+| 6   | `uv` install path on agent host — copied from venv vs. system installer denied                        | surprise | surprise   |
 
 ### 3.8 Forward-looking check
 
@@ -177,18 +177,18 @@ Unblocks TODO #1 (split monolith — package layout fixed), TODO #2 (test scaffo
 
 ## Governance trace
 
-| Source                              | Clause                           | Action  | Note                                                                                            |
-| ----------------------------------- | -------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
-| CEREMONIES.md `Task start`          | Task start ceremony              | applied | scope decomposed; framework discussed before § 2                                                |
-| CEREMONIES.md `Mandate approval gate` | Mandate gate                   | applied | user attested § 1 + § 2 before code; resets caused by hook design                               |
-| CLAUDE.md `Code-reuse`              | Frameworks and libraries trigger | applied | `uv` + `hatchling` over hand-rolled setup                                                       |
-| CLAUDE.md `YAGNI`                   | YAGNI                            | applied | `dependencies = []`; populated in TODO #1                                                       |
-| CLAUDE.md `Naming discipline`       | Outcome-named                    | applied | `claude-busy-monitor` describes purpose                                                         |
-| architecture/devlog/CLAUDE.md       | Lean mandate + execution plan    | applied | two-pass compression                                                                            |
-| CLAUDE.md `Housekeeping on main`    | Branch hygiene                   | applied | TODO.md updates committed on `main`; branch left untouched until rebuild                        |
-| CLAUDE.md `Force-push confirmation` | Destructive op gate              | applied | user authorized 3 force-pushes (pikett scrub, ec66934 scrub, branch rebuild)                    |
-| CLAUDE.md `First-task carve-out`    | Bootstrapping gap                | tension | Charter / MEMORY / governance / HOWTO absent — proceed with carve-out per user (2026-04-26)     |
-| CEREMONIES.md `Task closure`        | Task closure ceremony            | applied | this section                                                                                    |
+| Source                                | Clause                           | Action  | Note                                                                                        |
+| ------------------------------------- | -------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| CEREMONIES.md `Task start`            | Task start ceremony              | applied | scope decomposed; framework discussed before § 2                                            |
+| CEREMONIES.md `Mandate approval gate` | Mandate gate                     | applied | user attested § 1 + § 2 before code; resets caused by hook design                           |
+| CLAUDE.md `Code-reuse`                | Frameworks and libraries trigger | applied | `uv` + `hatchling` over hand-rolled setup                                                   |
+| CLAUDE.md `YAGNI`                     | YAGNI                            | applied | `dependencies = []`; populated in TODO #1                                                   |
+| CLAUDE.md `Naming discipline`         | Outcome-named                    | applied | `claude-busy-monitor` describes purpose                                                     |
+| architecture/devlog/CLAUDE.md         | Lean mandate + execution plan    | applied | two-pass compression                                                                        |
+| CLAUDE.md `Housekeeping on main`      | Branch hygiene                   | applied | TODO.md updates committed on `main`; branch left untouched until rebuild                    |
+| CLAUDE.md `Force-push confirmation`   | Destructive op gate              | applied | user authorized 3 force-pushes (pikett scrub, ec66934 scrub, branch rebuild)                |
+| CLAUDE.md `First-task carve-out`      | Bootstrapping gap                | tension | Charter / MEMORY / governance / HOWTO absent — proceed with carve-out per user (2026-04-26) |
+| CEREMONIES.md `Task closure`          | Task closure ceremony            | applied | this section                                                                                |
 
 ## Resource consumption
 
@@ -199,12 +199,11 @@ Unblocks TODO #1 (split monolith — package layout fixed), TODO #2 (test scaffo
 | Closure        | ~40k            | 30 min    |
 | **Total**      | **~190k**       | **~3 h**  |
 
-| Counter                                  | Value                                |
-| ---------------------------------------- | ------------------------------------ |
-| Pre-commit hook fails                    | 0                                    |
-| Pre-tool-use hook denials                | 2 (force-push amend, `curl\|sh`)     |
-| Force-pushes (main)                      | 2 (pikett scrub, ec66934 scrub)      |
-| Force-pushes (branch)                    | 2 (pikett-related, ec66934-related)  |
-| LOC changed (`git diff main...HEAD`)     | +320 / -92 net                       |
-| Files changed                            | 8                                    |
-
+| Counter                              | Value                               |
+| ------------------------------------ | ----------------------------------- |
+| Pre-commit hook fails                | 0                                   |
+| Pre-tool-use hook denials            | 2 (force-push amend, `curl\|sh`)    |
+| Force-pushes (main)                  | 2 (pikett scrub, ec66934 scrub)     |
+| Force-pushes (branch)                | 2 (pikett-related, ec66934-related) |
+| LOC changed (`git diff main...HEAD`) | +320 / -92 net                      |
+| Files changed                        | 8                                   |
