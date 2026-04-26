@@ -11,7 +11,8 @@ Ships as a `claude-busy-monitor` CLI **and** a Python library (`get_sessions()`,
 
 ## Why
 
-When you run many Claude Code sessions in parallel, keeping an overview of their states is a job in itself. As an avid user, you want every session **working** — and every minute it isn't, you're losing time:
+When you run many Claude Code sessions in parallel, keeping an overview of their states is a job in itself.
+As an avid user, you want every session **working** — and every minute it isn't, you're losing time:
 
 - A **busy** session is the productive one — Claude is doing the work you asked for.
 - An **idle** session is waiting for your next prompt — feed it.
@@ -19,62 +20,64 @@ When you run many Claude Code sessions in parallel, keeping an overview of their
 
 `claude-busy-monitor` surfaces the asking ones instantly so they don't sit there burning your wall-clock.
 
+## Scope
+
+What it sees and does:
+
+- Local Claude Code **CLI sessions** on disk (the ones writing under `~/.claude/sessions/`).
+- Their live **state** (`busy` / `asking` / `idle`) and cumulative **token totals**.
+
+What it deliberately does **not** do:
+
+- **No API calls** — works entirely from local files; no quota burn, no auth needed.
+- **No web or desktop sessions** — those don't write the `~/.claude/sessions/` files this tool reads.
+- **No mutation, no daemon, no IPC** — read-only, ephemeral, nothing to start or supervise.
+
 ## Features
 
-| Feature                | Description                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------- |
-| **Live state**         | `busy` / `asking` / `idle` per session, read directly from Claude Code's own session probes        |
-| **Summary at a glance**| Coloured pill counts on the first line — eyeball-scannable from across the room                    |
-| **Token usage**        | Cumulative input + output tokens per session, summed from the live transcript                      |
-| **`watch`-friendly**   | Stable, line-oriented output; no spinners or escape-sequence cursor moves                          |
-| **Zero configuration** | Reads `~/.claude/sessions/` and `~/.claude/projects/` — nothing to set up                          |
-| **Library + CLI**      | Use the `claude-busy-monitor` command, or import `get_sessions()` from Python                      |
-
-## Quick start
-
-```bash
-# Install (dev path until PyPI publish lands; see "Install" below)
-git clone https://github.com/pbauermeister/claude-busy-monitor.git
-cd claude-busy-monitor
-make install
-
-# Run
-claude-busy-monitor
-
-# Watch live (refresh every second)
-watch -n 1 -c claude-busy-monitor
-```
-
-The `-c` flag on `watch` is what preserves the colour pills.
+| Feature                      | What it gives you                                                                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **No daemon, no IPC**        | Reads the files Claude Code itself writes. Nothing to start, nothing to keep running.                                                                   |
+| **Authoritative state**      | `status` comes straight from Claude Code's own probe files — no inference, no heuristics, no race-prone proxies.                                        |
+| **Cache-aware token totals** | Sums all four `usage` categories (fresh, cache-create, cache-read, output). Naïvely counting only `input_tokens` underreports by ~10× on cached prompts. |
+| **Summary at a glance**      | Coloured pill counts on the first line — scannable from across the room.                                                                                |
+| **`watch`-friendly**         | Stable, line-oriented output; no spinners, no cursor-move escapes.                                                                                      |
+| **Zero configuration**       | Reads `~/.claude/sessions/` and `~/.claude/projects/`. Nothing to set up.                                                                               |
 
 ## Install
 
-### For users (PyPI)
-
-PyPI publish is on the roadmap. Until then, use the developer install below.
-
-### For developers
-
-Requires Python 3.11+ and [`uv`](https://github.com/astral-sh/uv) on your `PATH` (one-line install: `pipx install uv`).
+PyPI publish is on the roadmap; until then, the install path is `git` + `make`:
 
 ```bash
 git clone https://github.com/pbauermeister/claude-busy-monitor.git
 cd claude-busy-monitor
-make venv-activate     # creates .venv, syncs deps, drops you into the shell
-make help              # lists every Makefile target
-make install           # installs the CLI globally via `uv tool install`
+make install   # installs the CLI globally via `uv tool install .`
 ```
+
+Prerequisites: Python 3.11+ and [`uv`](https://github.com/astral-sh/uv) on your `PATH` (one-line install: `pipx install uv`).
+
+To work on the project itself rather than just use it, run `make venv-activate` instead — it creates `.venv`, syncs dev deps, and drops you into an activated shell.
+`make help` lists every Makefile target (lint, format, test-unit / smoke / e2e, build).
 
 ## Usage
 
 ### CLI
 
 ```bash
-claude-busy-monitor          # one-shot listing
-watch -n 1 -c claude-busy-monitor   # live refresh
+claude-busy-monitor                       # one-shot listing
+watch -n 1 -c claude-busy-monitor         # live refresh (the -c keeps colours)
 ```
 
-Output is one summary line followed by one line per session. See the hero above for the layout.
+The output is one summary line followed by one line per session.
+Each session line reads:
+
+| Column | Meaning                                                       |
+| ------ | ------------------------------------------------------------- |
+| 1      | session id (first 12 hex chars)                               |
+| 2      | state pill — `busy` (red) / `asking` (yellow) / `idle` (green) |
+| 3      | working directory (basename)                                  |
+| 4      | output tokens, cumulative (`out:`)                            |
+| 5      | input tokens, cumulative (`in:` — fresh + cached, summed)     |
 
 ### Library
 
@@ -97,19 +100,19 @@ Public API: `ClaudeSession`, `ClaudeState`, `TokenStats`, `get_sessions()`, `get
 1. `~/.claude/sessions/<pid>.json` — one probe file per live session, with the authoritative `status` field (`busy` / `idle` / `waiting`).
 2. `~/.claude/projects/<encoded-cwd>/<sid>.jsonl` — the per-session transcript, used only to total token usage.
 
-State classification is a one-row table — no inference, no heuristics. Token usage sums the four input/output categories from each `assistant.message.usage` entry.
+State classification is a one-row table — no inference, no heuristics.
+Token usage sums the four input/output categories from each `assistant.message.usage` entry (fresh, cache-create, cache-read, output).
 
-For the full design — including the assumptions the classifier depends on, the diagnostic recipes for when something looks wrong, and the repair playbook — see [README-STATE-DETECTION.md](README-STATE-DETECTION.md).
+For the full design — assumptions the classifier depends on, diagnostic recipes for when something looks wrong, and the repair playbook — see [README-STATE-DETECTION.md](README-STATE-DETECTION.md).
 
 ## Compatibility
 
-- **Operating system**: Linux (relies on `/proc/<pid>/comm`). macOS is not supported yet — collaboration is very welcome: please start by [opening a Discussion](https://github.com/pbauermeister/claude-busy-monitor/discussions) so we can align on the approach before any issue or PR.
-- **Claude Code**: requires v2.1.119 or newer (the `status` field was introduced then). Older sessions are silently dropped — `/exit` and `claude --resume <sessionId>` will migrate them.
-
-## Develop
-
-See the developer install above and `make help` for the full target list. The repository carries a test scaffold (`make test-unit`, `make test-smoke`, `make test-e2e`) and a destructive smoke loop (`make cycle`).
+- **Operating system**: Linux (relies on `/proc/<pid>/comm`).
+  macOS is not supported yet — collaboration is very welcome.
+  Please start by [opening a Discussion](https://github.com/pbauermeister/claude-busy-monitor/discussions) so we can align on the approach before any issue or PR.
+- **Claude Code**: requires v2.1.119 or newer (the `status` field was introduced then).
+  Older sessions are silently dropped — `/exit` and `claude --resume <sessionId>` will migrate them.
 
 ## License
 
-[MIT](LICENSE) — see also [CHANGES.md](CHANGES.md) for the version history.
+[MIT](LICENSE) — see [CHANGES.md](CHANGES.md) for the version history.
