@@ -32,13 +32,18 @@ This file captures items as they arise during work, so nothing is forgotten with
    ```
    0 busy   1 asking   3 idle
 
-   d956ca8c3d42   idle   stekip-ai-mvp                 out:230.5K  in: 72.5M   33 t/s
-   2be809b5f314   idle   client-py                     out:  5.5K  in:  1.1M        —
-   a0e233458c35   idle   claude-busy-monitor           out:  6.0K  in:175.7K  109 t/s
-   8aa45875c04f  asking  client-py                     out:  1.7K  in:279.1K        —
+   d956ca8c3d42   idle   stekip-ai-mvp                 out:230.5K  in: 72.5M
+   2be809b5f314   idle   client-py                     out:  5.5K  in:  1.1M
+   a0e233458c35   idle   claude-busy-monitor           out:  6.0K  in:175.7K
+   8aa45875c04f  asking  client-py                     out:  1.7K  in:279.1K
    ```
 
-4. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
+4. Split and redistribute the code and documentation:
+   - Library code originally in `claude_busy_monitor.py` shall live in a proper library package. It shall contain no rendering code (colors).
+   - The state detection documentation originally in `README-STATE-DETECTION.md` shall be updated so that agents can continue to maintain/fix the state classification.
+   - Shell-callable program shall use the library, and care for rendering (ANSI terminal, `watch` friendly, so base-ANSI colors).
+
+5. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
 
 ### 2. Test scaffold + testability discussion
 
