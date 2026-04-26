@@ -1,4 +1,5 @@
 # Just type 'make' to get help.
+# First run on a fresh box: 'make install-uv', then 'make help'.
 
 SHELL := /bin/bash
 VENV  ?= .venv
@@ -32,12 +33,11 @@ venv: ## create the local virtual environment ($(VENV)) via uv (idempotent)
 	else \
 		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
 	fi
-	@echo "Activate with: source $(VENV)/bin/activate"
 
-venv-activate: ## Activate .venv and start an interactive shell
+venv-activate: venv ## Activate .venv and start an interactive shell
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
-require: ## install runtime + dev dependencies into the venv
+require: venv ## install runtime + dev dependencies into the venv
 	uv sync --extra dev
 
 lint: ## run ruff lint
