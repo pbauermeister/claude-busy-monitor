@@ -105,9 +105,7 @@ def _newest_jsonl(project_dir: Path) -> Path | None:
     return best
 
 
-def _find_active_jsonl(
-    cwd: str, session_id_hint: str | None, solo: bool
-) -> Path | None:
+def _find_active_jsonl(cwd: str, session_id_hint: str | None, solo: bool) -> Path | None:
     """Resolve a probe's live JSONL transcript (used for token stats only).
 
     Path encoding and the solo-vs-multi disambiguation: README §A2, §A3.

@@ -65,12 +65,7 @@ def main() -> int:
     sessions = get_sessions()
     state_counts = get_state_counts(sessions)
 
-    print(
-        " ".join(
-            _colorize(f" {n} {state} ", state, n > 0)
-            for state, n in state_counts.items()
-        )
-    )
+    print(" ".join(_colorize(f" {n} {state} ", state, n > 0) for state, n in state_counts.items()))
     print()
     for s in sessions:
         state_colored = _colorize(f" {s.state:^6} ", s.state)
