@@ -11,6 +11,7 @@ Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) se
 
 When you run many Claude Code sessions in parallel, keeping an overview of their states is a job in itself. As an avid user, you want every session **working** — and every minute it isn't, you're losing time:
 
+- A **busy** session is the productive one — Claude is doing the work you asked for.
 - An **idle** session is waiting for your next prompt — feed it.
 - An **asking** session is fully stalled on a menu (most often a permission prompt) — answer it to unstuck Claude.
 
