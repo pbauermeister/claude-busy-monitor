@@ -4,14 +4,10 @@
 SHELL := /bin/bash
 VENV  ?= .venv
 
-# Mark every target in this Makefile as .PHONY (none of them produce a file
-# named after the target). Extracted from the Makefile itself to avoid
-# desynchronisation when targets are added or renamed.
-.PHONY: $(shell awk -F'[ :]' '/^[a-zA-Z_][a-zA-Z0-9_-]*:/{print $$1}' Makefile | sort -u)
-
 ################################################################################
 ## General commands:: ##
 
+.PHONY: help
 help: ## print this help
 	@echo "Usage: make [TARGET]..."
 	@echo
@@ -30,6 +26,7 @@ help: ## print this help
 ################################################################################
 ## Setup:: ##
 
+.PHONY: install-uv
 install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "uv already installed: $$(uv --version)"; \
@@ -44,6 +41,7 @@ install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 		esac; \
 	fi
 
+.PHONY: _venv
 _venv: # create the local venv via uv (idempotent)
 	@if [ -x $(VENV)/bin/python ]; then \
 		echo "$(VENV) already exists — not recreating."; \
@@ -51,6 +49,7 @@ _venv: # create the local venv via uv (idempotent)
 		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
 	fi
 
+.PHONY: venv-activate
 venv-activate: _venv ## sync deps into .venv and start an interactive shell with it activated
 	uv sync --extra dev
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
@@ -58,33 +57,41 @@ venv-activate: _venv ## sync deps into .venv and start an interactive shell with
 ################################################################################
 ## Quality:: ##
 
+.PHONY: lint
 lint: ## run ruff lint
 	uv run ruff check src
 
+.PHONY: format
 format: ## run ruff format (in-place)
 	uv run ruff format src
 
+.PHONY: test
 test: ## run pytest
 	uv run pytest
 
 ################################################################################
 ## Build and install:: ##
 
+.PHONY: build
 build: ## build wheel + sdist into dist/
 	uv build
 
+.PHONY: install
 install: ## install in the user's account (CLI on ~/.local/bin/)
 	uv tool install --force .
 
+.PHONY: uninstall
 uninstall: ## uninstall from the user's account
 	uv tool uninstall claude-busy-monitor
 
+.PHONY: publish
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
 
 ################################################################################
 ## Cleanup:: ##
 
+.PHONY: clean
 clean: ## remove venv, build artefacts, caches
 	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
