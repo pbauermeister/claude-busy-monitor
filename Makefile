@@ -26,11 +26,13 @@ install-uv: ## install uv (idempotent; Linux/macOS via Astral installer)
 		esac; \
 	fi
 
-venv: ## create the local virtual environment ($(VENV)) via uv
-	uv venv $(VENV)
-	@echo
-	@echo "Now please run:"
-	@echo "  source $(VENV)/bin/activate"
+venv: ## create the local virtual environment ($(VENV)) via uv (idempotent)
+	@if [ -x $(VENV)/bin/python ]; then \
+		echo "$(VENV) already exists — not recreating."; \
+	else \
+		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
+	fi
+	@echo "Activate with: source $(VENV)/bin/activate"
 
 venv-activate: ## Activate .venv and start an interactive shell
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
