@@ -15,7 +15,7 @@ help: ## print this help
 
 	@# capture section headers and documented targets:
 	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
-	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-16s%s\n", $$1, $$2}' \
+	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-18s%s\n", $$1, $$2}' \
 	| sed -E 's/^ *#+/\n/g' \
 	| sed -E 's/ +$$//g' \
 	| sed -E 's/\\n/\n                      /g'
@@ -99,6 +99,10 @@ uninstall: ## uninstall from the user's account
 install-legacy: ## install lib user-wide (2)
 	uv pip install --user . || pip install --user --break-system-packages .
 
+.PHONY: uninstall-legacy
+uninstall-legacy: ## uninstall lib user-wide (2)
+	uv pip uninstall claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
+
 .PHONY: publish
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
@@ -116,5 +120,5 @@ clean: ## remove venv, build artefacts, caches
 ##
 ## Notes:
 ## - All targets activate .venv for themselves.
-## - (1) modifies user account
-## - (2) temporary hack — prefer per-project venv with PyPI or local-path pip install
+## - (1) modifies user account.
+## - (2) temporary hack for Python code not using venv.
