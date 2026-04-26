@@ -115,21 +115,25 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
 ### 3.1 Implementation deviations
 
 - `make install` does **not** depend on `make build`. Plan said "depends on build"; deviated because `uv tool install .` builds from source itself — an explicit dep is redundant work. Minimal-coupling principle inherited from #1 (`install-uv` unchained from `venv`).
-- No other deviations.
+- PR #4 review applied (post-impl):
+  - Library module renamed `_core.py` → `_sessions.py` — names what the module is about (sessions) rather than its role (`_core`). Per CLAUDE.md naming discipline (what, not how).
+  - `_cli.py`: ANSI escape constants regrouped into a `StrEnum` (`Ansi`).
+  - `_cli.py`: `argparse.ArgumentParser` added so `claude-busy-monitor -h` prints a description.
+  - `_sessions.py`: `get_state_counts(sessions=...)` docstring expanded to explain the consistency-with-prior-listing intent.
 
 ### 3.2 File inventory
 
 - new: `CHANGES.md` — version + summary index, single source of truth.
-- new: `src/claude_busy_monitor/_core.py` — library body (renamed from monolith, ANSI helpers and CLI stripped).
+- new: `src/claude_busy_monitor/_sessions.py` — library body (renamed from monolith → originally `_core.py`, then `_sessions.py` per PR review; ANSI helpers and CLI stripped).
 - modified: `pyproject.toml` — `version` declared dynamic; `[tool.hatch.version]` regex source on `CHANGES.md`.
 - modified: `src/claude_busy_monitor/__init__.py` — re-exports public API; `__version__` via `importlib.metadata`.
-- modified: `src/claude_busy_monitor/_cli.py` — real CLI (palette + `_humanize_count` + `main`).
+- modified: `src/claude_busy_monitor/_cli.py` — real CLI (palette as `Ansi` `StrEnum` + `_humanize_count` + `argparse`-driven `main`).
 - modified: `Makefile` — added `install` target.
-- modified: `README-STATE-DETECTION.md` — companion path now points at `_core.py`.
+- modified: `README-STATE-DETECTION.md` — companion path now points at `_sessions.py`.
 - modified: `uv.lock` — refreshed by `uv sync` after pyproject change.
-- deleted: `claude_busy_monitor.py` — replaced by `_core.py`.
+- deleted: `claude_busy_monitor.py` — replaced by `_sessions.py`.
 
-Effective set matches § 2.1 inline mentions; no divergence.
+Effective set matches § 2.1 inline mentions; the only post-plan divergence is the `_core.py` → `_sessions.py` rename captured in § 3.1.
 
 ### 3.3 Verification commands
 

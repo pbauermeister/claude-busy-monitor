@@ -4,32 +4,40 @@ Prints a state summary line followed by one line per Claude session.
 ANSI palette is base-16 — `watch`-friendly.
 """
 
+import argparse
+from enum import StrEnum
+
 from claude_busy_monitor import ClaudeState, get_sessions, get_state_counts
 
-_ANSI_RESET = "\x1b[0m"
 
-_FG_BLACK = "\x1b[30m"
-_FG_GREY = "\x1b[90m"
+class Ansi(StrEnum):
+    """ANSI escape sequences used by the CLI palette."""
 
-_BG_BLACK = "\x1b[40m"
-_BG_RED = "\x1b[41m"
-_BG_GREEN = "\x1b[42m"
-_BG_YELLOW = "\x1b[43m"
+    RESET = "\x1b[0m"
 
-_FX_BLINK = "\x1b[5m"
+    FG_BLACK = "\x1b[30m"
+    FG_GREY = "\x1b[90m"
+
+    BG_BLACK = "\x1b[40m"
+    BG_RED = "\x1b[41m"
+    BG_GREEN = "\x1b[42m"
+    BG_YELLOW = "\x1b[43m"
+
+    FX_BLINK = "\x1b[5m"
+
 
 _STATE_STYLE: dict[ClaudeState, str] = {
-    ClaudeState.BUSY: _FG_BLACK + _BG_RED,
-    ClaudeState.ASKING: _FG_BLACK + _BG_YELLOW + _FX_BLINK,
-    ClaudeState.IDLE: _FG_BLACK + _BG_GREEN,
+    ClaudeState.BUSY: f"{Ansi.FG_BLACK}{Ansi.BG_RED}",
+    ClaudeState.ASKING: f"{Ansi.FG_BLACK}{Ansi.BG_YELLOW}{Ansi.FX_BLINK}",
+    ClaudeState.IDLE: f"{Ansi.FG_BLACK}{Ansi.BG_GREEN}",
 }
 
 
 def _colorize(text: str, state: ClaudeState, doit: bool = True) -> str:
     """Wrap `text` in the ANSI style defined for `state`."""
     if not doit:
-        return f"{_BG_BLACK}{_FG_GREY}{text}{_ANSI_RESET}"
-    return f"{_STATE_STYLE[state]}{text}{_ANSI_RESET}"
+        return f"{Ansi.BG_BLACK}{Ansi.FG_GREY}{text}{Ansi.RESET}"
+    return f"{_STATE_STYLE[state]}{text}{Ansi.RESET}"
 
 
 def _humanize_count(n: int) -> str:
@@ -44,6 +52,16 @@ def _humanize_count(n: int) -> str:
 
 
 def main() -> int:
+    argparse.ArgumentParser(
+        prog="claude-busy-monitor",
+        description=(
+            "List active Claude sessions for the current user with their state. "
+            "Prints a state-summary line (busy / asking / idle counts) followed "
+            "by one line per session with cumulative token totals. Output is "
+            "suitable for `watch`."
+        ),
+    ).parse_args()
+
     sessions = get_sessions()
     state_counts = get_state_counts(sessions)
 

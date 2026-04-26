@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from ._core import (
+from ._sessions import (
     ClaudeSession,
     ClaudeState,
     TokenStats,

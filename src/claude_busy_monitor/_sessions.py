@@ -235,7 +235,14 @@ def get_sessions() -> list[ClaudeSession]:
 def get_state_counts(
     sessions: list[ClaudeSession] | None = None,
 ) -> dict[ClaudeState, int]:
-    """Count live sessions by state. All ClaudeState keys are present."""
+    """Count live sessions by state. All ClaudeState keys are present.
+
+    Pass `sessions` (typically the result of an earlier `get_sessions()`
+    call) to keep the per-state counts consistent with a previously
+    obtained listing — otherwise this function calls `get_sessions()`
+    itself, which re-scans the filesystem and may reflect a slightly
+    later state.
+    """
     counts = {state: 0 for state in ClaudeState}
     for s in sessions or get_sessions():
         counts[s.state] += 1
