@@ -101,7 +101,7 @@ install-legacy: ## install lib user-wide (2)
 
 .PHONY: uninstall-legacy
 uninstall-legacy: ## uninstall lib user-wide (2)
-	uv pip uninstall claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
+	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
 .PHONY: publish
 publish: build ## upload wheel + sdist to PyPI (user-only)
