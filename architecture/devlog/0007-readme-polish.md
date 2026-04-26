@@ -91,7 +91,7 @@ Out: PyPI publish (TODO #2), GH ticket templates (TODO #3), OSX support, version
 
 - **Hero**: no screenshot tool available on the host (`scrot`/`import` X11-only, no `aha`/`svg-term`/`ansi2html`). Pivoted to a hand-crafted SVG instead of a PNG screenshot — reproducible without binaries, crisp at any zoom, matches DFD's pattern.
 - **First hero render misclassified `asking` as grey** instead of yellow. The sample I sampled had 0 asking sessions, where `_cli.py` uses the dim `BG_BLACK + FG_GREY` style for zero counts; the actual asking pill is `BG_YELLOW + FG_BLACK + FX_BLINK`. Caught at user review; fixed by reading the colour map first. Lesson: read the relevant code before designing visual artefacts.
-- **Real project name leaked into the hero** (`pikett-ai-mvp`). Caught at user review; replaced with a generic public project name. Devlog 0001 carried three references in its appendix — scrubbed in the same commit; § 3 Closure of 0001 reset to `pending` per CLAUDE.md attestation rule.
+- **Private project name leaked into the hero**. Caught at user review; replaced with a generic public project name. Devlog 0001 carried three appendix references to the same private name — scrubbed in the same commit; § 3 Closure of 0001 reset to `pending` per CLAUDE.md attestation rule.
 - **CLI as metonymy for "command"** in five places. Caught at user review (round 4 of polish); swapped to "command" or dropped where the form-factor distinction was already handled by the Scope section.
 - **Three "honest take" rounds** instead of one: round 1 surfaced 7 structural issues, round 2 surfaced 7 nits, round 3 hit the noise floor (3 cosmetic items I wouldn't act on). Convergence-check (CLAUDE.md) triggered at round 3 — flagged the diminishing-returns pattern back to the user.
 
@@ -131,17 +131,17 @@ Within charter scope.
 
 ### 3.7 Retrospective
 
-| #   | Point                                                                                              | Agent    | User |
-| --- | -------------------------------------------------------------------------------------------------- | -------- | ---- |
-| 1   | DFD-style structure landed in one draft pass — reference accelerated the design                    | well     |      |
-| 2   | Hand-crafted SVG hero unblocked the no-screenshot-tool dead-end                                    | well     |      |
-| 3   | First hero render had wrong asking colour — should have read `_cli.py` colour map before drafting  | not well |      |
-| 4   | Real project name slipped into the hero — should have asked about name sensitivity beforehand     | not well |      |
-| 5   | CLI-as-metonymy not caught by agent — user surfaced it in round 4                                  | not well |      |
+| #   | Point                                                                                                 | Agent    | User |
+| --- | ----------------------------------------------------------------------------------------------------- | -------- | ---- |
+| 1   | DFD-style structure landed in one draft pass — reference accelerated the design                       | well     |      |
+| 2   | Hand-crafted SVG hero unblocked the no-screenshot-tool dead-end                                       | well     |      |
+| 3   | First hero render had wrong asking colour — should have read `_cli.py` colour map before drafting     | not well |      |
+| 4   | Real project name slipped into the hero — should have asked about name sensitivity beforehand         | not well |      |
+| 5   | CLI-as-metonymy not caught by agent — user surfaced it in round 4                                     | not well |      |
 | 6   | Three-round honest-take pattern converged with concrete improvements; round 3 self-reported asymptote | well     |      |
-| 7   | Cache-aware token-totals row gives a quantified ~10× claim — concrete value-prop                   | well     |      |
-| 8   | Library example reframed to filter-by-state — sells what only the library can do                   | well     |      |
-| 9   | Devlog 0001 scrub reset § 3 Closure on a previously merged task — new pattern, mild surprise       | surprise |      |
+| 7   | Cache-aware token-totals row gives a quantified ~10× claim — concrete value-prop                      | well     |      |
+| 8   | Library example reframed to filter-by-state — sells what only the library can do                      | well     |      |
+| 9   | Devlog 0001 scrub reset § 3 Closure on a previously merged task — new pattern, mild surprise          | surprise |      |
 
 ### 3.8 Demo scenario
 
@@ -176,36 +176,36 @@ Sets up the visible front for TODO #2 (PyPI publish): the README already names P
 
 ## Governance trace
 
-| Source                                | Clause                          | Action  | Note                                                                          |
-| ------------------------------------- | ------------------------------- | ------- | ----------------------------------------------------------------------------- |
-| CEREMONIES.md `Task start`            | Task start ceremony             | applied | issue + branch + devlog with mandate gate before any code                     |
-| CEREMONIES.md `Mandate approval gate` | Mandate gate                    | applied | user attested § 1 + § 2 before draft (commit `3f084f6`)                       |
-| CLAUDE.md `Density and terseness`     | Sentence-per-line, lean prose   | applied | README ≤ 125 lines; voice trimmed across three polish rounds                  |
-| CLAUDE.md `YAGNI`                     | YAGNI                           | applied | no CONTRIBUTING.md, no examples/, no broken-shield badges                     |
+| Source                                | Clause                             | Action  | Note                                                                       |
+| ------------------------------------- | ---------------------------------- | ------- | -------------------------------------------------------------------------- |
+| CEREMONIES.md `Task start`            | Task start ceremony                | applied | issue + branch + devlog with mandate gate before any code                  |
+| CEREMONIES.md `Mandate approval gate` | Mandate gate                       | applied | user attested § 1 + § 2 before draft (commit `3f084f6`)                    |
+| CLAUDE.md `Density and terseness`     | Sentence-per-line, lean prose      | applied | README ≤ 125 lines; voice trimmed across three polish rounds               |
+| CLAUDE.md `YAGNI`                     | YAGNI                              | applied | no CONTRIBUTING.md, no examples/, no broken-shield badges                  |
 | CLAUDE.md `Convergence check`         | Stop and ask: reaching/retreating? | applied | round 3 honest-take self-reported asymptote rather than manufacturing nits |
-| CLAUDE.md `Flattery avoidance`        | Honest critique                 | applied | "honest take" responses returned actual problems, not praise                  |
-| CLAUDE.md `Multiple interpretations`  | List and rank                   | applied | CLI-metonymy discussion offered the swap table before applying                |
-| CLAUDE.md `Naming discipline`         | Outcome-named sections          | applied | Why / Scope / Features / Install / Usage / How it works                       |
-| MEMORY.md `Blocked edit workaround`   | Use Write tool                  | applied | devlog 0001 scrub used Write (Edit hook-blocked by user attestation)          |
-| CEREMONIES.md `Task closure`          | Task closure ceremony           | applied | this section                                                                  |
+| CLAUDE.md `Flattery avoidance`        | Honest critique                    | applied | "honest take" responses returned actual problems, not praise               |
+| CLAUDE.md `Multiple interpretations`  | List and rank                      | applied | CLI-metonymy discussion offered the swap table before applying             |
+| CLAUDE.md `Naming discipline`         | Outcome-named sections             | applied | Why / Scope / Features / Install / Usage / How it works                    |
+| MEMORY.md `Blocked edit workaround`   | Use Write tool                     | applied | devlog 0001 scrub used Write (Edit hook-blocked by user attestation)       |
+| CEREMONIES.md `Task closure`          | Task closure ceremony              | applied | this section                                                               |
 
 ## Resource consumption
 
-| Phase          | Tokens (approx) | Wall time  |
-| -------------- | --------------- | ---------- |
-| Mandate + plan | ~30k            | 20 min     |
-| Implementation | ~80k            | 1 h        |
-| Review rounds  | ~60k            | 40 min     |
-| Closure        | ~20k            | 15 min     |
+| Phase          | Tokens (approx) | Wall time   |
+| -------------- | --------------- | ----------- |
+| Mandate + plan | ~30k            | 20 min      |
+| Implementation | ~80k            | 1 h         |
+| Review rounds  | ~60k            | 40 min      |
+| Closure        | ~20k            | 15 min      |
 | **Total**      | **~190k**       | **~2.25 h** |
 
-| Counter                  | Value                                      |
-| ------------------------ | ------------------------------------------ |
-| Pre-commit hook fails    | 0                                          |
-| Subagent invocations     | 0                                          |
-| `/clear` events          | 1 (at task start)                          |
-| Memory rotation events   | 0                                          |
-| LOC changed              | +305 / -17 (`git diff main...HEAD --stat`) |
-| Files changed            | 4 (README, hero.svg, devlog 0001, devlog 0007) |
-| Commits on branch        | 13                                         |
-| Honest-take review rounds | 3                                          |
+| Counter                   | Value                                          |
+| ------------------------- | ---------------------------------------------- |
+| Pre-commit hook fails     | 0                                              |
+| Subagent invocations      | 0                                              |
+| `/clear` events           | 1 (at task start)                              |
+| Memory rotation events    | 0                                              |
+| LOC changed               | +305 / -17 (`git diff main...HEAD --stat`)     |
+| Files changed             | 4 (README, hero.svg, devlog 0001, devlog 0007) |
+| Commits on branch         | 13                                             |
+| Honest-take review rounds | 3                                              |
