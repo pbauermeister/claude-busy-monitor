@@ -6,7 +6,7 @@
 
 Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) session on your machine — which one is **busy**, which one is **asking** for your input, which one is **idle** — with cumulative token totals.
 
-Ships as a `claude-busy-monitor` CLI **and** a Python library (`get_sessions()`, `get_state_counts()`).
+Ships as a `claude-busy-monitor` command **and** a Python library (`get_sessions()`, `get_state_counts()`).
 
 ![claude-busy-monitor in action](images/hero.svg)
 
@@ -25,7 +25,7 @@ You want every session **working** — every minute it isn't is time you don't g
 
 What it sees and does:
 
-- Local Claude Code **CLI sessions** of the running user (`~/.claude/sessions/` is per-user — the tool sees only your own sessions).
+- Local Claude Code sessions of the running user (`~/.claude/sessions/` is per-user — the tool sees only your own sessions).
 - Their live **state** (`busy` / `asking` / `idle`) and cumulative **token totals**.
 
 What it deliberately does **not** do:
@@ -53,7 +53,7 @@ PyPI publish is on the roadmap; until then, the install path is `git` + `make`:
 git clone https://github.com/pbauermeister/claude-busy-monitor.git
 cd claude-busy-monitor
 make require   # installs uv if missing (idempotent; Linux/macOS)
-make install   # installs the CLI globally via `uv tool install .`
+make install   # installs the command globally via `uv tool install .`
 ```
 
 Only prerequisite is Python 3.11+; `make require` bootstraps [`uv`](https://github.com/astral-sh/uv) for you.
@@ -63,7 +63,7 @@ To work on the project itself rather than just use it, run `make venv-activate` 
 
 ## Usage
 
-### CLI
+### Command
 
 ```bash
 claude-busy-monitor                       # one-shot listing
@@ -83,7 +83,7 @@ Each session line reads:
 
 ### Library
 
-Build your own: a tmux notifier, a status-bar widget, a custom dashboard. The library exposes the same data the CLI uses.
+Build your own: a tmux notifier, a status-bar widget, a custom dashboard. The library exposes the same data the command uses.
 
 ```python
 from claude_busy_monitor import get_sessions, get_state_counts, ClaudeState
