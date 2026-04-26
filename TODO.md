@@ -32,7 +32,7 @@ This file captures items as they arise during work, so nothing is forgotten with
    ```
    0 busy   1 asking   3 idle
 
-   d956ca8c3d42   idle   stekip-ai-mvp                 out:230.5K  in: 72.5M
+   d956ca8c3d42   idle   my-ai-project                 out:230.5K  in: 72.5M
    2be809b5f314   idle   client-py                     out:  5.5K  in:  1.1M
    a0e233458c35   idle   claude-busy-monitor           out:  6.0K  in:175.7K
    8aa45875c04f  asking  client-py                     out:  1.7K  in:279.1K
