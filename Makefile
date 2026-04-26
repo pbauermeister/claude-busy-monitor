@@ -49,26 +49,29 @@ _venv: # create the local venv via uv (idempotent)
 		uv venv --quiet $(VENV) && echo "Created $(VENV)."; \
 	fi
 
-.PHONY: venv-activate
-venv-activate: _venv ## start an interactive shell in updated .venv
+.PHONY: require-dev
+require-dev: _venv ## install dev/test deps into .venv (pytest, ruff)
 	uv sync --extra dev
+
+.PHONY: venv-activate
+venv-activate: require-dev ## start an interactive shell in updated .venv
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
 ################################################################################
 ## Quality:: ##
 
 .PHONY: lint
-lint: ## ruff check + format-check (read-only)
+lint: require-dev ## ruff check + format-check (read-only)
 	uv run ruff check src
 	uv run ruff format --check src
 
 .PHONY: format
-format: ## ruff format + lint autofix (modifies code)
+format: require-dev ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
 .PHONY: test
-test: ## run pytest
+test: require-dev ## run pytest
 	uv run pytest
 
 .PHONY: check
