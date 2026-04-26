@@ -7,7 +7,14 @@ Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) se
 
 ![claude-busy-monitor in action](images/hero.svg)
 
-Run several Claude Code sessions in parallel? `claude-busy-monitor` tells you, in one line, how many need attention right now and which project each session is working in — perfect for `watch`, a tmux pane, or a status bar.
+## Why
+
+When you run many Claude Code sessions in parallel, keeping an overview of their states is a job in itself. As an avid user, you want every session **working** — and every minute it isn't, you're losing time:
+
+- An **idle** session is waiting for your next prompt — feed it.
+- An **asking** session is fully stalled on a menu (most often a permission prompt) — answer it to unstuck Claude.
+
+`claude-busy-monitor` surfaces the asking ones instantly so they don't sit there burning your wall-clock.
 
 ## Features
 
