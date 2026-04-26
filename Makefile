@@ -15,7 +15,7 @@ help: ## print this help
 
 	@# capture section headers and documented targets:
 	@grep -E '^#* *[ a-zA-Z_-]+:.*?##.*$$' Makefile \
-	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-14s%s\n", $$1, $$2}' \
+	| awk 'BEGIN {FS = ":[^:]*?##"}; {printf "  %-16s%s\n", $$1, $$2}' \
 	| sed -E 's/^ *#+/\n/g' \
 	| sed -E 's/ +$$//g' \
 	| sed -E 's/\\n/\n                      /g'
@@ -89,11 +89,15 @@ build: lint ## build wheel + sdist into dist/
 
 .PHONY: install
 install: ## install in the user's account (CLI on ~/.local/bin/)
-	uv tool install --force .
+	uv tool install --reinstall .
 
 .PHONY: uninstall
 uninstall: ## uninstall from the user's account
 	uv tool uninstall claude-busy-monitor
+
+.PHONY: install-legacy
+install-legacy: ## install lib user-wide (2)
+	uv pip install --user . || pip install --user --break-system-packages .
 
 .PHONY: publish
 publish: build ## upload wheel + sdist to PyPI (user-only)
@@ -113,3 +117,4 @@ clean: ## remove venv, build artefacts, caches
 ## Notes:
 ## - All targets activate .venv for themselves.
 ## - (1) modifies user account
+## - (2) temporary hack — prefer per-project venv with PyPI or local-path pip install
