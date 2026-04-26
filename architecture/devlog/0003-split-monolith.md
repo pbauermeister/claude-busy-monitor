@@ -9,7 +9,7 @@
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -86,7 +86,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
