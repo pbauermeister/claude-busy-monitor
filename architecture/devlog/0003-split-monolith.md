@@ -76,6 +76,7 @@ Test scaffold is TODO #2 (deferred). For this task, verification is operational:
 6. `README-STATE-DETECTION.md` updated to reference `_core.py` (no dangling references to the deleted monolith).
 7. `claude_busy_monitor.py` deleted.
 8. `make lint` passes; `make build` produces wheel + sdist.
+9. Devlog § 3 includes a `Test seeds for TODO #2` subsection — aspects spotted during implementation worth covering in the test scaffold task. Forward-feeds TODO #2.
 
 ### 1.8 Coverage check
 
@@ -111,7 +112,11 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
 - Model: Claude Opus 4.7
 - Review: pending
 
-_(filled at closure)_
+_(standard subsections filled at closure — see `devlog/CLAUDE.md` template)_
+
+### 3.X Test seeds for TODO #2
+
+_(filled at closure: aspects spotted during implementation worth covering in the test scaffold task — module boundaries, edge cases, fixture shapes, regression risks)_
 
 ## Governance trace
 
