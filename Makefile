@@ -4,7 +4,10 @@
 SHELL := /bin/bash
 VENV  ?= .venv
 
-.PHONY: help install-uv venv venv-activate lint format test build install publish clean
+# Mark every target in this Makefile as .PHONY (none of them produce a file
+# named after the target). Extracted from the Makefile itself to avoid
+# desynchronisation when targets are added or renamed.
+.PHONY: $(shell awk -F'[ :]' '/^[a-zA-Z_][a-zA-Z0-9_-]*:/{print $$1}' Makefile | sort -u)
 
 ################################################################################
 ## General commands:: ##
@@ -70,7 +73,7 @@ test: ## run pytest
 build: ## build wheel + sdist into dist/
 	uv build
 
-install: ## install CLI globally (puts claude-busy-monitor on ~/.local/bin/)
+install: ## install in the user's account (CLI on ~/.local/bin/)
 	uv tool install --force .
 
 publish: build ## upload wheel + sdist to PyPI (user-only)
