@@ -76,6 +76,9 @@ build: ## build wheel + sdist into dist/
 install: ## install in the user's account (CLI on ~/.local/bin/)
 	uv tool install --force .
 
+uninstall: ## uninstall from the user's account
+	uv tool uninstall claude-busy-monitor
+
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
 
