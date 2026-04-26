@@ -50,7 +50,7 @@ _venv: # create the local venv via uv (idempotent)
 	fi
 
 .PHONY: venv-activate
-venv-activate: _venv ## sync deps into .venv and start an interactive shell with it activated
+venv-activate: _venv ## start an interactive shell in updated .venv
 	uv sync --extra dev
 	@bash --rcfile <(echo "unset MAKELEVEL"; cat ~/.bashrc .venv/bin/activate)
 
@@ -93,6 +93,17 @@ uninstall: ## uninstall from the user's account
 publish: build ## upload wheel + sdist to PyPI (user-only)
 	uv publish
 
+.PHONY: cycle
+cycle: ## full cycle: uninstall, clean, lint, test, install (modifies user account)
+	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	-$(MAKE) uninstall
+	$(MAKE) clean
+	$(MAKE) lint
+	$(MAKE) test
+	$(MAKE) install
+
 ################################################################################
 ## Cleanup:: ##
 
@@ -100,3 +111,9 @@ publish: build ## upload wheel + sdist to PyPI (user-only)
 clean: ## remove venv, build artefacts, caches
 	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+
+
+################################################################################
+##
+## Notes:
+## - All targets activate .venv for themselves.
