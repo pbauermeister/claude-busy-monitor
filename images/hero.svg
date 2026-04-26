@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 196" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" font-size="14">
+  <style>
+    .bg { fill: #1e1e1e; }
+    .pill-busy   { fill: #cc4040; }
+    .pill-asking { fill: #444444; }
+    .pill-idle   { fill: #2fa84a; }
+    .pill-text-dark  { fill: #000000; font-weight: 600; }
+    .pill-text-dim   { fill: #a0a0a0; font-weight: 600; }
+    .text       { fill: #e0e0e0; }
+    .muted      { fill: #888888; }
+  </style>
+
+  <rect class="bg" width="760" height="196" rx="8" />
+
+  <!-- Summary line -->
+  <g transform="translate(20,32)">
+    <rect class="pill-busy"   x="0"   y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="36"  y="1" text-anchor="middle">2 busy</text>
+
+    <rect class="pill-asking" x="84"  y="-14" width="92" height="20" rx="2" />
+    <text class="pill-text-dim"   x="130" y="1" text-anchor="middle">1 asking</text>
+
+    <rect class="pill-idle"   x="188" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="224" y="1" text-anchor="middle">3 idle</text>
+  </g>
+
+  <!-- Session lines -->
+  <g transform="translate(20,72)">
+    <text class="text" x="0"   y="0">d956ca8c3d42</text>
+    <rect class="pill-idle"   x="112" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="148" y="1" text-anchor="middle">idle</text>
+    <text class="text"  x="200" y="0">pikett-ai-mvp</text>
+    <text class="muted" x="430" y="0">out:</text>
+    <text class="text"  x="468" y="0">718.5K</text>
+    <text class="muted" x="540" y="0">in:</text>
+    <text class="text"  x="572" y="0">190.4M</text>
+  </g>
+
+  <g transform="translate(20,96)">
+    <text class="text" x="0"   y="0">173839bbee06</text>
+    <rect class="pill-busy"   x="112" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="148" y="1" text-anchor="middle">busy</text>
+    <text class="text"  x="200" y="0">claude-busy-monitor</text>
+    <text class="muted" x="430" y="0">out:</text>
+    <text class="text"  x="468" y="0">  8.8K</text>
+    <text class="muted" x="540" y="0">in:</text>
+    <text class="text"  x="572" y="0">  1.2M</text>
+  </g>
+
+  <g transform="translate(20,120)">
+    <text class="text" x="0"   y="0">a4e5f2b18c91</text>
+    <rect class="pill-asking" x="112" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dim"   x="148" y="1" text-anchor="middle">asking</text>
+    <text class="text"  x="200" y="0">dfd</text>
+    <text class="muted" x="430" y="0">out:</text>
+    <text class="text"  x="468" y="0"> 24.1K</text>
+    <text class="muted" x="540" y="0">in:</text>
+    <text class="text"  x="572" y="0"> 11.7M</text>
+  </g>
+
+  <g transform="translate(20,144)">
+    <text class="text" x="0"   y="0">7c0d3e9a2f55</text>
+    <rect class="pill-busy"   x="112" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="148" y="1" text-anchor="middle">busy</text>
+    <text class="text"  x="200" y="0">k-website2</text>
+    <text class="muted" x="430" y="0">out:</text>
+    <text class="text"  x="468" y="0"> 42.0K</text>
+    <text class="muted" x="540" y="0">in:</text>
+    <text class="text"  x="572" y="0">  3.8M</text>
+  </g>
+
+  <g transform="translate(20,168)">
+    <text class="text" x="0"   y="0">e1f2c8d4b6a3</text>
+    <rect class="pill-idle"   x="112" y="-14" width="72" height="20" rx="2" />
+    <text class="pill-text-dark"  x="148" y="1" text-anchor="middle">idle</text>
+    <text class="text"  x="200" y="0">arduino-esp32-tft-terminal</text>
+    <text class="muted" x="430" y="0">out:</text>
+    <text class="text"  x="468" y="0">  2.3K</text>
+    <text class="muted" x="540" y="0">in:</text>
+    <text class="text"  x="572" y="0">412.0K</text>
+  </g>
+</svg>
