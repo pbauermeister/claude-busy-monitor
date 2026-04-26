@@ -3,7 +3,7 @@
 - GH issue: #3
 - Branch: `impl/0003-split-monolith`
 - Opened: 2026-04-26
-- Closed: _(filled at closure)_
+- Closed: 2026-04-26
 
 ## 1. Mandate
 
@@ -112,16 +112,134 @@ Out: tests (TODO #2), polished README (TODO #3), PyPI publish (TODO #4), GH tick
 - Model: Claude Opus 4.7
 - Review: pending
 
-_(standard subsections filled at closure — see `devlog/CLAUDE.md` template)_
+### 3.1 Implementation deviations
 
-### 3.X Test seeds for TODO #2
+- `make install` does **not** depend on `make build`. Plan said "depends on build"; deviated because `uv tool install .` builds from source itself — an explicit dep is redundant work. Minimal-coupling principle inherited from #1 (`install-uv` unchained from `venv`).
+- No other deviations.
 
-_(filled at closure: aspects spotted during implementation worth covering in the test scaffold task — module boundaries, edge cases, fixture shapes, regression risks)_
+### 3.2 File inventory
+
+- new: `CHANGES.md` — version + summary index, single source of truth.
+- new: `src/claude_busy_monitor/_core.py` — library body (renamed from monolith, ANSI helpers and CLI stripped).
+- modified: `pyproject.toml` — `version` declared dynamic; `[tool.hatch.version]` regex source on `CHANGES.md`.
+- modified: `src/claude_busy_monitor/__init__.py` — re-exports public API; `__version__` via `importlib.metadata`.
+- modified: `src/claude_busy_monitor/_cli.py` — real CLI (palette + `_humanize_count` + `main`).
+- modified: `Makefile` — added `install` target.
+- modified: `README-STATE-DETECTION.md` — companion path now points at `_core.py`.
+- modified: `uv.lock` — refreshed by `uv sync` after pyproject change.
+- deleted: `claude_busy_monitor.py` — replaced by `_core.py`.
+
+Effective set matches § 2.1 inline mentions; no divergence.
+
+### 3.3 Verification commands
+
+```bash
+make require                # uv sync --extra dev
+make lint                   # uv run ruff check src — clean
+make build                  # dist/ wheel + sdist for 0.1.0
+make install                # ~/.local/bin/claude-busy-monitor
+claude-busy-monitor         # state summary + per-session lines
+python -c "from claude_busy_monitor import (
+  ClaudeSession, ClaudeState, TokenStats, get_sessions, get_state_counts, __version__
+); print(__version__)"      # → 0.1.0
+```
+
+### 3.4 Coverage check
+
+Within charter scope.
+
+### 3.5 Test review
+
+- _Coverage_: no test code added; justification (c) per devlog rule — building the scaffold is the entire scope of TODO #2. Test seeds for that task are in § 3.7.
+- _Effectiveness_: no existing test caught any error during this task (no tests exist yet).
+
+### 3.6 Gate check
+
+- Acceptance criteria 1–9: met (criteria 1–8 verified by § 3.3; criterion 9 satisfied by § 3.7).
+- All deliverables committed on `impl/0003-split-monolith`.
+- Mandate review gate: § 1 + § 2 user-attested before implementation began.
+
+### 3.7 Test seeds for TODO #2
+
+Aspects spotted during the split worth covering in TODO #2:
+
+1. **Probe parsing — `_load_session_probes`**: malformed JSON in a probe file is silently dropped; required-field validation; unknown `status` drops the probe; pid that fails `_is_process_claude` drops the probe.
+2. **Solo vs. multi disambiguation in `_find_active_jsonl`**: when multiple probes share a cwd, each must use its own `session_id_hint` (no newest-jsonl fallback); single-probe cwd falls back to newest jsonl. README §A3 codifies; bug-prone.
+3. **Path encoding in `_find_active_jsonl`**: cwd `/foo/bar` → project dir `-foo-bar`. Edge cases: trailing slash, embedded dashes. README §A2.
+4. **`_compute_token_stats` field summation**: must sum `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. Using only `input_tokens` underreports by ~100×. README §B; regression risk.
+5. **`_PROBE_STATUS_MAP`**: exactly three keys. Adding a fourth status without updating the map silently drops affected sessions (README §A4 fix recipe).
+6. **`get_state_counts` with empty input**: returns all-three-keys map with 0 values, never missing keys.
+7. **`__version__` ↔ `CHANGES.md` consistency**: hatch regex pattern and topmost `## Version X.Y.Z:` line must agree; bump-then-rebuild check.
+8. **Smoke**: `claude-busy-monitor` exits 0 on a system with no live Claude sessions; `SESSIONS_DIR` not existing handled gracefully.
+9. **CLI rendering invariants**: summary line includes all three states; ANSI escapes stable for `watch` consumption.
+10. **End-to-end fixture shape**: tmpdir tree mocking `~/.claude/sessions/<pid>.json` + `~/.claude/projects/<encoded>/<sid>.jsonl` with a known transcript — exercises full stack without spawning a real Claude.
+
+### 3.8 Demo scenario
+
+```bash
+git checkout <merge-commit-hash>
+make venv && source .venv/bin/activate
+make require && make install
+claude-busy-monitor
+```
+
+Expected output: a state-summary line (busy / asking / idle counts, color-coded) followed by one line per live Claude session with cumulative input/output tokens.
+
+### 3.9 Retrospective
+
+| #   | Point                                                                      | Agent    | User |
+| --- | -------------------------------------------------------------------------- | -------- | ---- |
+| 1   | Mandate compression + planned tree caught design tensions before code      | well     |      |
+| 2   | Hatch regex source for version: clean, single source of truth              | well     |      |
+| 3   | `make install` no-build-dep deviation surfaced during impl, not in plan    | not well |      |
+| 4   | Test-seeds appendix doubled as forward-feed to TODO #2                     | well     |      |
+| 5   | Lean closure (~150-line target) feasible for mechanical splits             | well     |      |
+| 6   | Implementation phase ran straight-through, zero hook trips on impl commits | surprise |      |
+
+### 3.10 Forward-looking check
+
+- TODO #2 (test scaffold) gets explicit seeds (§ 3.7) plus stable module boundaries (`_core` for lib, `_cli` for rendering) to mock against.
+- TODO #3 (README polish) inherits a "library + CLI" narrative rather than "monolith".
+- TODO #4 (PyPI publish) inherits a working `make build` + `make install`; only `UV_PUBLISH_TOKEN` wiring remains.
+
+### 3.11 Verdict
+
+**Recommendation**: Accept.
+
+**Rationale**:
+
+- All 9 acceptance criteria met (§ 3.3 verifies 1–8; § 3.7 satisfies 9).
+- `make lint && make build && make install && claude-busy-monitor` runs clean.
+- `__version__` reads `0.1.0` from `CHANGES.md` via hatch — single source of truth confirmed end-to-end.
+- `_core.py` carries no ANSI escapes (`grep -nE '\\x1b' src/claude_busy_monitor/_core.py` → empty).
 
 ## Governance trace
 
-_(filled at closure)_
+| #   | Requirement                  | Source                     | How met                                              |
+| --- | ---------------------------- | -------------------------- | ---------------------------------------------------- |
+| 1   | Devlog entry                 | charter § 12.7 / CLAUDE.md | `architecture/devlog/0003-split-monolith.md`         |
+| 2   | GH issue with category tag   | CLAUDE.md                  | #3 (`[impl]`)                                        |
+| 3   | Branch from main             | CLAUDE.md                  | `impl/0003-split-monolith`                           |
+| 4   | Mandate review gate          | CEREMONIES § Task start    | § 1 + § 2 user-attested before code                  |
+| 5   | Author/Model/Review metadata | charter § 12.1             | per-section blocks present                           |
+| 6   | Acceptance criteria          | charter § 12.7             | § 1.7 (9 criteria)                                   |
+| 7   | Test plan in mandate         | CEREMONIES § Task start    | § 1.6 (operational; scaffold deferred to TODO #2)    |
+| 8   | Coverage check               | charter § 12.5             | § 1.8 + § 3.4                                        |
+| 9   | Test review at closure       | CEREMONIES § Task closure  | § 3.5                                                |
+| 10  | Demo scenario                | CEREMONIES § Task closure  | § 3.8                                                |
+| 11  | Retrospective voting table   | CEREMONIES § Task closure  | § 3.9                                                |
+| 12  | Forward-looking check        | CEREMONIES § Task closure  | § 3.10                                               |
+| 13  | Verdict (self-assessment)    | devlog/CLAUDE.md           | § 3.11                                               |
 
 ## Resource consumption
 
-_(filled at closure)_
+| Metric                   | Value                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| Wall time                | ~2 h (devlog setup + impl + closure)                                                      |
+| LOC changed              | +121 / -91 (`git diff main...HEAD --stat`)                                                |
+| Files changed            | 8 (excl. devlog)                                                                          |
+| Commits on branch        | 4 (devlog open + tree + seeds + impl)                                                     |
+| Pre-commit hook failures | 1 (review-attestation hook on closure edit, resolved by Write fallback per CLAUDE.md)     |
+| Subagent invocations     | 0                                                                                         |
+| `/clear` events          | 0                                                                                         |
+| Memory rotation events   | 1 (`/compact` at session start)                                                           |
