@@ -45,7 +45,9 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 5. Add a `make install` target installing the CLI globally via `uv tool install .` (puts `claude-busy-monitor` on `~/.local/bin/`, so the program runs outside the dev venv).
 
-6. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
+6. Versioning: `CHANGES.md` is the single source of truth for version number and summary (DFD pattern). Each release is a `## Version X.Y.Z:` heading followed by a bullet-list summary. The build derives the version from this file (modern equivalent: hatch dynamic version via `[tool.hatch.version] source = "regex" path = "CHANGES.md"`, with `version` declared as dynamic in `[project]`). `claude_busy_monitor.__version__` mirrors the same source. Bumping a version means appending a new heading + summary in `CHANGES.md` — no separate edit to `pyproject.toml` or `__init__.py`.
+
+7. After the new structure is in place, the original `claude_busy_monitor.py` is deleted.
 
 ### 2. Test scaffold + testability discussion
 
