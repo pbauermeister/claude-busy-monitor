@@ -9,7 +9,7 @@
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -42,7 +42,7 @@ Smoke test (`tests/smoke/`, tmp-git-repo fixture) asserts each guard fires; HOWT
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
