@@ -1,10 +1,23 @@
 # Just type 'make' to get help.
 # First run on a fresh box: 'make require', then 'make help'.
 #
-# Target layering (#11): two levels.
-#   Low-level   — no other-target deps, recipe does one thing.
-#   High-level  — composes low-levels only (no high→high).
-# High-level targets live with their purpose group, not in a dedicated section.
+# ============================================================================
+# CONVENTIONS WHEN EDITING THIS FILE — read before adding/changing targets.
+# ============================================================================
+#
+# 1. Target dependencies — STRICT TWO-LEVEL MODEL:
+#    - Low-level  targets: no other-target deps; recipe does ONE thing.
+#    - High-level targets: compose low-levels only; NO high→high (neither
+#      via `target: deps` lines nor via `$(MAKE) X` submakes in recipes).
+#    High-level targets live with their purpose group; no dedicated section.
+#    Audit: scan every `target: …` line and every `$(MAKE) …` in recipes;
+#    each referent must be a low-level target.
+#
+# 2. Help docstrings — ≤60 CHARS (so `make help` lines fit 80 columns):
+#    Format: `target: ## doc string here`. `make help` prints
+#    `  <target><pad-to-col-20><doc>`, so doc room = 80 − 20 = 60.
+#    Verify after edits: `make help | awk '{print length}' | sort -nr | head`.
+# ============================================================================
 
 SHELL := /bin/bash
 VENV  ?= .venv
