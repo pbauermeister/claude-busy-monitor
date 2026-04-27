@@ -10,21 +10,28 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 ### 1. Revisit publish/release tooling
 
-Hand-rolled in #9 + #11: `scripts/publish-preflight.sh`, `make publish-quality`, `make publish-tag`, `HOWTO-PUBLISH.md`. Total ~250 LOC. Per CLAUDE.md `Code-reuse: frameworks and libraries`, this should have been considered at #9 mandate time — publishing/release management is a known solved space:
+Hand-rolled in #9 + #11: `scripts/publish-preflight.sh`, `scripts/publish-tag.sh`, `make publish-quality`, `HOWTO-PUBLISH.md`. ~250 LOC for a single-CLI / no-deps project. Per CLAUDE.md `Code-reuse: frameworks and libraries`, should have been considered at #9 mandate time.
 
-- `python-semantic-release` — Conventional-Commits-driven version + changelog + tag + publish.
-- `release-please` (Google) — opens release PR with bump + changelog; tag + publish on merge.
-- `pypa/gh-action-pypi-publish` — OIDC trusted publishing from GitHub Actions, no token.
-- `commitizen`, `bump-my-version` — narrower (bump + tag only).
-- `twine check dist/*` — PyPI README rendering check (would have caught the v0.1.0 hero-image-on-PyPI bug).
+**Direction settled** — streamline using off-the-shelf tools where they fit; **keep the manual gate before publish**. Auto-publish from CI is off the table because:
 
-Decision deferred to a tooling-audit task: stay hand-rolled (local-only, full uninstall/reinstall cycle is unusual and valuable) vs migrate (CI + OIDC is the modern shape, less surface to maintain). For now, low-hanging fruit only: add `uvx twine check dist/*` to `make publish-quality`.
+- claude-busy-monitor: live Claude Code E2E is brittle (cost, non-determinism, CC session-file format drift); synthetic-probe tests cover the parser layer but not "did the published artefact really work end-to-end".
+- arduino-esp32-tft-terminal: firmware E2E is tractable via emulators (wokwi for ESP32) up to display-output verification, which still needs manual visual check.
 
-**Streamlining angle** — the Makefile is ~225 LOC across ~25 targets in 4 user-facing groups (Quality, Tests, Build and install, Publish to PyPI). For a single-CLI / no-deps project this is a lot of boilerplate. Audit candidates: drop legacy install/uninstall targets if unused in practice, fold rarely-invoked targets into others, consider whether `pyproject.toml` script entries or hatch-build hooks could replace Makefile recipes. Goal: cut ~50% LOC while keeping the gate semantics (`publish-quality` cycle is the keeper).
+**Candidates that fit the manual-gate model**:
 
-**Prerequisite for removing `install-legacy` / `uninstall-legacy`**: the dependent project `arduino-esp32-tft-terminal` must first be made venv-compliant. It currently relies on the user-wide pip install (the "temporary hack" of Makefile note (2)) to import `claude-busy-monitor` as a library. Once it activates a venv and installs from PyPI, the legacy targets become removable.
+- `twine check dist/*` — PyPI README rendering check. Would have caught the v0.1.0 hero-URL bug. Cheapest near-term win — fold into `publish-quality`.
+- `bump-my-version` / `commitizen` — version bump + tag (narrow scope; pairs with manual publish).
+- `uvx --from "<pkg>==<ver>"` — slim `publish-verify` post-publish smoke (see below).
 
-**Slim post-publish verifier** — `make publish-verify` running `uvx --from "claude-busy-monitor==$VERSION" claude-busy-monitor --version` to confirm PyPI propagation + wheel installability in a throwaway env. ~10 lines, ~10 seconds. Heavy version (full smoke suite from PyPI install) is overkill for this project (no deps, single entry, same install codepath as local).
+**Off the table** (CI-driven full pipelines, ruled out by manual-gate stance; listed for completeness): `python-semantic-release`, `release-please`, `pypa/gh-action-pypi-publish`.
+
+**Streamlining angle** — Makefile is ~225 LOC across ~25 targets in 4 user-facing groups. For a single-CLI / no-deps project this is a lot of boilerplate. Audit candidates: drop legacy install/uninstall (see prereq below), fold rarely-invoked targets, consider `pyproject.toml` script entries or hatch-build hooks. Goal: ~50% LOC cut while keeping `publish-quality` cycle semantics.
+
+**Prerequisite for removing `install-legacy` / `uninstall-legacy`**: dependent project `arduino-esp32-tft-terminal` must first be made venv-compliant — currently relies on the user-wide pip install (Makefile note (2)) to import `claude-busy-monitor` as a library.
+
+**Slim post-publish verifier** — `make publish-verify` running `uvx --from "claude-busy-monitor==$VERSION" claude-busy-monitor --version` to confirm PyPI propagation + wheel installability in a throwaway env. ~10 lines, ~10 seconds. Heavy version (full smoke suite from PyPI install) is overkill (no deps, single entry, same install codepath as local).
+
+**Separately** (independent of the publish workflow): PR-validation CI (lint + unit + smoke on push; **no** auto-publish) is a different concern — catches regressions earlier than local `make check`. Worth its own ticket if pursued.
 
 ### 2. Install template for GH tickets (bug, feature request)
 
