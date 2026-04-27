@@ -20,6 +20,10 @@ Hand-rolled in #9 + #11: `scripts/publish-preflight.sh`, `make publish-quality`,
 
 Decision deferred to a tooling-audit task: stay hand-rolled (local-only, full uninstall/reinstall cycle is unusual and valuable) vs migrate (CI + OIDC is the modern shape, less surface to maintain). For now, low-hanging fruit only: add `uvx twine check dist/*` to `make publish-quality`.
 
+**Streamlining angle** — the Makefile is ~225 LOC across ~25 targets in 4 user-facing groups (Quality, Tests, Build and install, Publish to PyPI). For a single-CLI / no-deps project this is a lot of boilerplate. Audit candidates: drop legacy install/uninstall targets if unused in practice, fold rarely-invoked targets into others, consider whether `pyproject.toml` script entries or hatch-build hooks could replace Makefile recipes. Goal: cut ~50% LOC while keeping the gate semantics (`publish-quality` cycle is the keeper).
+
+**Slim post-publish verifier** — `make publish-verify` running `uvx --from "claude-busy-monitor==$VERSION" claude-busy-monitor --version` to confirm PyPI propagation + wheel installability in a throwaway env. ~10 lines, ~10 seconds. Heavy version (full smoke suite from PyPI install) is overkill for this project (no deps, single entry, same install codepath as local).
+
 ### 2. Install template for GH tickets (bug, feature request)
 
 Gradually use GH tickets instead of TODO.md.
