@@ -80,6 +80,7 @@ The other four pre-flight guards still run; only the branch identity is waived.
    **Version convention**:
    - `X.Y.Z` — anything that goes into the wheel and changes user-visible state (code, README content, public docs).
    - `X.Y.Z.postN` — PEP 440 post-release; **reserved for publishing-mechanism fixes only** (same wheel content re-uploaded with corrected metadata, e.g. README rendering broken on PyPI). Code changes never warrant a `.postN`.
+
 2. **Commit and push** the bump:
 
    ```bash
@@ -104,17 +105,15 @@ The other four pre-flight guards still run; only the branch identity is waived.
 
    `make publish` is a raw `uv publish` — it assumes `publish-quality` was run first.
 
-## 4. Tag and push
+## 4. Tag
 
-Tag **only after** a successful upload — the tag is the durable record that PyPI accepted the artefact.
+Tag **only after** a successful upload — the tag is the durable record that PyPI accepted the artefact, and `publish-preflight` then rejects accidental re-publishing of the same version.
 
 ```bash
-VERSION=$(awk -F'[ :]' '/^## Version / {print $3; exit}' CHANGES.md)
-git tag "v$VERSION"
-git push origin "v$VERSION"
+make publish-tag
 ```
 
-If tagging is forgotten, the next `make publish-preflight` will not catch it (the version-already-on-PyPI case isn't checked) — but your next bump will overwrite the bug. So tag promptly.
+`publish-tag` extracts the version from `CHANGES.md`, guards on tag-absent (local + origin), then `git tag v$VERSION && git push origin v$VERSION`. Use `PUBLISH_ALLOW_RETAG=1` to force-retag if you need to fix a botched tag.
 
 ## 5. Verify
 
