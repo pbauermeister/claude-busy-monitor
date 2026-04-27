@@ -200,8 +200,30 @@ publish-preflight: ## pre-flight safety checks for publish (no upload)
 	@bash scripts/publish-preflight.sh
 
 .PHONY: publish
-publish: ## upload to PyPI (raw; use publish-quality first)
+publish: ## upload to PyPI (raw; use publish-quality first) (3)
 	uv publish
+
+.PHONY: publish-tag
+publish-tag: ## tag CHANGES.md version and push to origin (1)
+	@VERSION=$$(awk -F'[ :]' '/^## Version / {print $$3; exit}' CHANGES.md); \
+	if [ -z "$$VERSION" ]; then \
+		echo "publish-tag: cannot extract version from CHANGES.md" >&2; exit 1; \
+	fi; \
+	FORCE=""; \
+	if [ -n "$${PUBLISH_ALLOW_RETAG:-}" ]; then \
+		FORCE="-f"; \
+		echo "publish-tag: WARNING — retag bypass active (PUBLISH_ALLOW_RETAG set)" >&2; \
+	else \
+		if git rev-parse --verify --quiet "refs/tags/v$$VERSION" >/dev/null; then \
+			echo "publish-tag: tag v$$VERSION already exists locally (set PUBLISH_ALLOW_RETAG=1 to force)" >&2; exit 1; \
+		fi; \
+		if git ls-remote --exit-code --tags origin "refs/tags/v$$VERSION" >/dev/null 2>&1; then \
+			echo "publish-tag: tag v$$VERSION already exists on origin (set PUBLISH_ALLOW_RETAG=1 to force)" >&2; exit 1; \
+		fi; \
+	fi; \
+	git tag $$FORCE "v$$VERSION" && \
+	git push $$FORCE origin "v$$VERSION" && \
+	echo "publish-tag: v$$VERSION tagged + pushed"
 
 ################################################################################
 ## Cleanup:: ##
@@ -218,3 +240,7 @@ clean: ## remove venv, build artefacts, caches
 ## - All targets activate .venv for themselves.
 ## - (1) modifies user account.
 ## - (2) temporary hack for Python code not using venv.
+## - (3) prerequisite — store the PyPI token in keyring once:
+##       keyring set https://upload.pypi.org/legacy/ __token__   # paste token
+##       export UV_KEYRING_PROVIDER=subprocess
+##       export UV_PUBLISH_USERNAME=__token__
