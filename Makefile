@@ -179,21 +179,21 @@ cycle: ## from scratch: uninstall clean lint tests install verify (1)
 ## Publish:: ##
 
 .PHONY: publish-quality
-publish-quality: ## pre-publish gate: lint tests build reinstall preflight (1)
+publish-quality: ## pre-publish gate: lint tests reinstall preflight build (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
 	$(MAKE) lint
 	$(MAKE) test-unit
 	$(MAKE) test-smoke
-	$(MAKE) build
 	-$(MAKE) uninstall
 	$(MAKE) verify-uninstalled
 	$(MAKE) clean
 	$(MAKE) install
 	$(MAKE) verify-installed
 	$(MAKE) publish-preflight
-	@echo "publish-quality: all gates green. Run 'make publish' to upload."
+	$(MAKE) build
+	@echo "publish-quality: all gates green; dist/ ready. Run 'make publish' to upload."
 
 .PHONY: publish-preflight
 publish-preflight: ## pre-flight safety checks for publish (no upload)
