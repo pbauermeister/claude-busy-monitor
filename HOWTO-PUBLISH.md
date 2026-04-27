@@ -59,14 +59,14 @@ The last guard makes a network call (`git ls-remote`); the rest are local. All r
 
 ### 2.1 Bypass: testing the publish process from a feature branch
 
-Setting `PUBLISH_ALLOW_ANY_BRANCH=1` skips the branch check (with a `WARNING` line) so you can rehearse `make publish-preflight` and `make publish` from a non-`main` branch. Intended for testing the publish workflow itself (e.g. iterating on `0.1.x` bumps to validate this very pipeline), **not** for normal releases — production releases must happen from `main` so the published artefact is reproducible from `git checkout v$VERSION`.
+Setting `PUBLISH_ALLOW_ANY_BRANCH=1` skips the branch check (with a `WARNING` line) so you can rehearse `make publish-quality` and `make publish` from a non-`main` branch. Intended for testing the publish workflow itself (e.g. iterating on `0.1.x` bumps to validate this very pipeline), **not** for normal releases — production releases must happen from `main` so the published artefact is reproducible from `git checkout v$VERSION`.
 
 ```bash
-PUBLISH_ALLOW_ANY_BRANCH=1 make publish-preflight
+PUBLISH_ALLOW_ANY_BRANCH=1 make publish-quality
 PUBLISH_ALLOW_ANY_BRANCH=1 make publish
 ```
 
-The other four guards still run; only the branch identity is waived.
+The other four pre-flight guards still run; only the branch identity is waived.
 
 ## 3. Publish
 
@@ -79,11 +79,13 @@ The other four guards still run; only the branch identity is waived.
    git push origin main
    ```
 
-3. **Run pre-flight** (optional — `make publish` does it too):
+3. **Run the pre-publish gate** (recommended):
 
    ```bash
-   make publish-preflight
+   make publish-quality
    ```
+
+   `publish-quality` runs `lint` → unit + smoke tests → `build` → `uninstall` → `verify-uninstalled` → `clean` → `install` → `verify-installed` → `publish-preflight`. Halts on the first failure; does **not** upload. If you only want the pre-flight checks (no install round-trip), use `make publish-preflight` standalone.
 
 4. **Publish**:
 
@@ -91,7 +93,7 @@ The other four guards still run; only the branch identity is waived.
    make publish
    ```
 
-   This runs the pre-flight, builds wheel + sdist into `dist/`, then `uv publish` uploads them.
+   `make publish` is a raw `uv publish` — it assumes `publish-quality` was run first.
 
 ## 4. Tag and push
 
