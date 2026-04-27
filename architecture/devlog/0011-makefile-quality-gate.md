@@ -50,7 +50,7 @@ Unit test for `--version` (drive `main()`, assert exit 0 + version string). No a
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -103,15 +103,15 @@ Within charter scope. CEREMONIES.md edit is in-task scope (rename ripple).
 
 ### 3.7 Retrospective
 
-| #   | Point                                                                                                                            | Agent    | User |
-| --- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | ---- |
-| 1   | Conventions codified in the file header (§§ 1–3) — future edits can't miss the layering, ≤80 col, or call-sequence rules         | well     | ?    |
-| 2   | Marker shape iterated: `# Purpose:` comment → colon-in-doc; second is more compact and visible in `make help`                    | not well | ?    |
-| 3   | `make help` extraction grep had a `: ##` literal-text bug, surfaced only post-edit by visual inspection                          | not well | ?    |
-| 4   | Resolved #9 ↔ #11 reciprocal dependency by deferring publish-preflight from publish-quality on #11; cleaner than cherry-pick     | well     | ?    |
-| 5   | `make publish-quality` ran end-to-end clean on this branch (lint+tests+build+uninstall+verify+clean+install+verify)              | well     | ?    |
-| 6   | Multiple reorder rounds (Build and install ordering, Publish ordering) — would have been one if call-sequence rule existed first | not well | ?    |
-| 7   | `test-full` → `test` rename signals "retained per user" mandate language was a hedge that resolved against keeping the long name | surprise | ?    |
+| #   | Point                                                                                                                            | Agent    | User     |
+| --- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
+| 1   | Conventions codified in the file header (§§ 1–3) — future edits can't miss the layering, ≤80 col, or call-sequence rules         | well     | well     |
+| 2   | Marker shape iterated: `# Purpose:` comment → colon-in-doc; second is more compact and visible in `make help`                    | not well | well     |
+| 3   | `make help` extraction grep had a `: ##` literal-text bug, surfaced only post-edit by visual inspection                          | not well | well     |
+| 4   | Resolved #9 ↔ #11 reciprocal dependency by deferring publish-preflight from publish-quality on #11; cleaner than cherry-pick     | well     | well     |
+| 5   | `make publish-quality` ran end-to-end clean on this branch (lint+tests+build+uninstall+verify+clean+install+verify)              | well     | well     |
+| 6   | Multiple reorder rounds (Build and install ordering, Publish ordering) — would have been one if call-sequence rule existed first | not well | well     |
+| 7   | `test-full` → `test` rename signals "retained per user" mandate language was a hedge that resolved against keeping the long name | surprise | surprise |
 
 ### 3.8 Demo scenario
 
