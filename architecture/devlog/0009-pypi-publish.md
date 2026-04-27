@@ -56,7 +56,7 @@ Smoke test (`tests/smoke/`, tmp-git-repo fixture) asserts each guard fires; HOWT
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -120,19 +120,19 @@ Within charter scope.
 
 ### 3.7 Retrospective
 
-| #   | Point                                                        | Agent    | User |
-| --- | ------------------------------------------------------------ | -------- | ---- |
-| 1   | Verified uv-publish token sources before answering [^a]      | well     | ?    |
-| 2   | Pre-flight script extraction unlocked clean smoke tests [^b] | well     | ?    |
-| 3   | Plan said 4 guards, shipped 5 — flagged in commit [^c]       | not well | ?    |
-| 4   | `PUBLISH_ALLOW_ANY_BRANCH` added mid-task on demand          | well     | ?    |
-| 5   | Missed #9 ↔ #11 reciprocal dependency [^d]                   | not well | ?    |
-| 6   | Devlog compression hit structural floor (67% vs 60%) [^e]    | surprise | ?    |
-| 7   | Resume-after-#11 (merge + take-theirs) was clean             | well     | ?    |
-| 8   | Real-publish caught 5 bugs synthetic tests missed [^f]       | not well | ?    |
-| 9   | Two live publishes + `publish-tag` end-to-end green          | well     | ?    |
-| 10  | **Framework-trigger missed** at mandate [^g]                 | not well | ?    |
-| 11  | `publish` made self-contained for keyring auth [^h]          | well     | ?    |
+| #   | Point                                                        | Agent    | User       |
+| --- | ------------------------------------------------------------ | -------- | ---------- |
+| 1   | Verified uv-publish token sources before answering [^a]      | well     | well       |
+| 2   | Pre-flight script extraction unlocked clean smoke tests [^b] | well     | well       |
+| 3   | Plan said 4 guards, shipped 5 — flagged in commit [^c]       | not well | ended well |
+| 4   | `PUBLISH_ALLOW_ANY_BRANCH` added mid-task on demand          | well     | well       |
+| 5   | Missed #9 ↔ #11 reciprocal dependency [^d]                   | not well | ended well |
+| 6   | Devlog compression hit structural floor (67% vs 60%) [^e]    | surprise | don't care |
+| 7   | Resume-after-#11 (merge + take-theirs) was clean             | well     | well       |
+| 8   | Real-publish caught 5 bugs synthetic tests missed [^f]       | not well | ended well |
+| 9   | Two live publishes + `publish-tag` end-to-end green          | well     | well       |
+| 10  | **Framework-trigger missed** at mandate [^g]                 | not well | not well   |
+| 11  | `publish` made self-contained for keyring auth [^h]          | well     | well       |
 
 [^a]: kept the credential-storage answer fact-checked vs invented.
 
