@@ -176,27 +176,38 @@ cycle: ## from scratch: uninstall clean lint tests install verify (1)
 	$(MAKE) verify-installed
 
 ################################################################################
-## Publish:: ##
+## Publish to PyPI:: ##
 
 .PHONY: publish-quality
-publish-quality: ## pre-publish gate: lint tests build reinstall verify (1)
+publish-quality: ## pre-publish gate: lint tests reinstall preflight build (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
 	$(MAKE) lint
 	$(MAKE) test-unit
 	$(MAKE) test-smoke
-	$(MAKE) build
 	-$(MAKE) uninstall
 	$(MAKE) verify-uninstalled
 	$(MAKE) clean
 	$(MAKE) install
 	$(MAKE) verify-installed
-	@echo "publish-quality: all gates green. Run 'make publish' to upload."
+	$(MAKE) publish-preflight
+	$(MAKE) build
+	@echo "publish-quality: all gates green; dist/ ready. Run 'make publish' to upload."
+
+.PHONY: publish-preflight
+publish-preflight: ## pre-flight safety checks for publish (no upload)
+	@bash scripts/publish-preflight.sh
 
 .PHONY: publish
-publish: ## upload to PyPI (raw; use publish-quality first)
+publish: ## upload to PyPI (raw; use publish-quality first) (3)
+	export UV_KEYRING_PROVIDER=subprocess; \
+	export UV_PUBLISH_USERNAME=__token__; \
 	uv publish
+
+.PHONY: publish-tag
+publish-tag: ## tag CHANGES.md version and push to origin (1)
+	@bash scripts/publish-tag.sh
 
 ################################################################################
 ## Cleanup:: ##
@@ -213,3 +224,6 @@ clean: ## remove venv, build artefacts, caches
 ## - All targets activate .venv for themselves.
 ## - (1) modifies user account.
 ## - (2) temporary hack for Python code not using venv.
+## - (3) prerequisite — store the PyPI token in keyring once
+##       (will prompt for the token):
+##       keyring set https://upload.pypi.org/legacy/ __token__

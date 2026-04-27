@@ -1,5 +1,9 @@
 # Changes
 
+## Version 0.1.0.post1:
+
+- README hero image now uses an absolute GitHub-raw URL so it renders on PyPI (relative paths don't resolve in the PyPI project description).
+
 ## Version 0.1.0:
 
 - Restructure into installable library + CLI.

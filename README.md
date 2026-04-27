@@ -8,7 +8,7 @@ Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) se
 
 Ships as a `claude-busy-monitor` command **and** a Python library (`get_sessions()`, `get_state_counts()`).
 
-![claude-busy-monitor in action](images/hero.svg)
+![claude-busy-monitor in action](https://raw.githubusercontent.com/pbauermeister/claude-busy-monitor/main/images/hero.svg)
 
 ## Why
 

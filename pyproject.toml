@@ -40,7 +40,7 @@ Issues = "https://github.com/pbauermeister/claude-busy-monitor/issues"
 [tool.hatch.version]
 source = "regex"
 path = "CHANGES.md"
-pattern = '^## Version (?P<version>\d+\.\d+\.\d+):'
+pattern = '^## Version (?P<version>\d+\.\d+\.\d+(?:\.post\d+)?):'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/claude_busy_monitor"]
