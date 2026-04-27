@@ -29,7 +29,7 @@ The publish itself is **maintainer-only**; the workflow below assumes you have p
 ```bash
 read -s UV_PUBLISH_TOKEN          # paste token; -s hides it from the terminal
 export UV_PUBLISH_TOKEN
-make publish                       # runs pre-flight, builds, uploads
+make publish                       # uploads dist/* via uv publish
 unset UV_PUBLISH_TOKEN             # clear when done
 ```
 
@@ -38,10 +38,15 @@ unset UV_PUBLISH_TOKEN             # clear when done
 ```bash
 uv tool install keyring
 keyring set https://upload.pypi.org/legacy/ __token__   # paste token at prompt
-echo 'export UV_KEYRING_PROVIDER=subprocess' >> ~/.bashrc
+cat >> ~/.bashrc <<'EOF'
+export UV_KEYRING_PROVIDER=subprocess
+export UV_PUBLISH_USERNAME=__token__
+EOF
 ```
 
-After this, `make publish` finds the token automatically — no env var needed.
+Both env vars are required: `UV_KEYRING_PROVIDER=subprocess` tells uv to consult keyring, and `UV_PUBLISH_USERNAME=__token__` tells it which key to look up. Without the username, uv has no key to query and falls back to interactive prompts (then 403s if the prompt input is incomplete). After this one-time setup, `make publish` finds the token automatically.
+
+**For the very first publish on a new account**: the token MUST be **account-scoped** (`Scope: Entire account`), not project-scoped — PyPI auto-creates the project (`claude-busy-monitor`) on the first successful upload, so a project-scoped token has nothing to scope to yet. Rotate to a project-scoped token after the first publish for tighter blast radius.
 
 ## 2. Pre-flight
 
@@ -126,7 +131,9 @@ If `pip install` resolves an older version, PyPI hasn't propagated the new relea
 ## 6. Troubleshooting
 
 - **`401 Unauthorized` from `uv publish`** — token is wrong, expired, or not scoped to this project. Regenerate at https://pypi.org/manage/account/token/.
+- **`403 Forbidden` "Invalid or non-existent authentication information"** — token rejected by PyPI. Most common causes: (a) project-scoped token used for the first-ever upload (project doesn't exist yet — use account-scoped for the first round); (b) TestPyPI token used against PyPI; (c) malformed token (whitespace, missing `pypi-` prefix).
 - **`403 Forbidden` "filename has already been used"** — this exact wheel/sdist filename is already on PyPI (PyPI never lets you re-upload, even after deletion). Bump `CHANGES.md` and try again.
+- **`uv publish` prompts for username/password despite keyring being set** — `UV_KEYRING_PROVIDER=subprocess` alone is not enough; uv also needs `UV_PUBLISH_USERNAME=__token__` to know what to look up. Set both env vars (see § 1.1).
 - **`make publish-preflight` says branch must be 'main' but you're on `main`** — `git rev-parse --abbrev-ref HEAD` reports something else (e.g. `HEAD` if detached). Run `git status` to see the actual state.
 - **`uv publish` hangs uploading** — check network; `uv publish --verbose` shows progress.
-- **Pre-flight passes but build fails** — `make build` runs `lint` first; a failing ruff check blocks publish. Fix the lint, commit (otherwise the next pre-flight rejects the dirty tree), retry.
+- **`make publish` fails with "No files found to publish"** — `dist/` is empty. `make publish-quality` rebuilds `dist/` as its last step; run it before `make publish`. Standalone fix: `make build`.
