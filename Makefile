@@ -176,7 +176,7 @@ cycle: ## from scratch: uninstall clean lint tests install verify (1)
 	$(MAKE) verify-installed
 
 ################################################################################
-## Publish:: ##
+## Publish to PyPI:: ##
 
 .PHONY: publish-quality
 publish-quality: ## pre-publish gate: lint tests reinstall preflight build (1)
