@@ -201,6 +201,8 @@ publish-preflight: ## pre-flight safety checks for publish (no upload)
 
 .PHONY: publish
 publish: ## upload to PyPI (raw; use publish-quality first) (3)
+	export UV_KEYRING_PROVIDER=subprocess; \
+	export UV_PUBLISH_USERNAME=__token__; \
 	uv publish
 
 .PHONY: publish-tag
@@ -240,7 +242,6 @@ clean: ## remove venv, build artefacts, caches
 ## - All targets activate .venv for themselves.
 ## - (1) modifies user account.
 ## - (2) temporary hack for Python code not using venv.
-## - (3) prerequisite — store the PyPI token in keyring once:
-##       keyring set https://upload.pypi.org/legacy/ __token__   # paste token
-##       export UV_KEYRING_PROVIDER=subprocess
-##       export UV_PUBLISH_USERNAME=__token__
+## - (3) prerequisite — store the PyPI token in keyring once
+##       (will prompt for the token):
+##       keyring set https://upload.pypi.org/legacy/ __token__
