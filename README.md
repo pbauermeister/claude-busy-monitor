@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Status: Stable](https://img.shields.io/badge/status-stable-brightgreen.svg)](CHANGES.md)
 
-Live view of every [Claude Code](https://docs.claude.com/en/docs/claude-code) session on your machine — which one is **busy**, which one is **asking** for your input, which one is **idle** — with cumulative token totals.
+Live view of your [Claude Code](https://docs.claude.com/en/docs/claude-code) sessions on your machine — which one is **busy**, which one is **asking** for your input, which one is **idle** — with cumulative token totals.
 
 Ships as a `claude-busy-monitor` command **and** a Python library (`get_sessions()`, `get_state_counts()`).
 
@@ -36,14 +36,14 @@ What it deliberately does **not** do:
 
 ## Features
 
-| Feature                      | What it gives you                                                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **No daemon, no IPC**        | Reads the files Claude Code itself writes. Nothing to start, nothing to keep running.                                                                   |
-| **Authoritative state**      | `status` comes straight from Claude Code's own probe files — no inference, no heuristics, no race-prone proxies.                                        |
+| Feature                      | What it gives you                                                                                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **No daemon, no IPC**        | Reads the files Claude Code itself writes. Nothing to start, nothing to keep running.                                                                    |
+| **Authoritative state**      | `status` comes straight from Claude Code's own probe files — no inference, no heuristics, no race-prone proxies.                                         |
 | **Cache-aware token totals** | Sums all four `usage` categories (fresh, cache-create, cache-read, output). Naïvely counting only `input_tokens` underreports by ~10× on cached prompts. |
-| **Summary at a glance**      | Coloured pill counts on the first line — scannable from across the room.                                                                                |
-| **`watch`-friendly**         | Stable, line-oriented output; no spinners, no cursor-move escapes.                                                                                      |
-| **Zero configuration**       | Reads `~/.claude/sessions/` and `~/.claude/projects/`. Nothing to set up.                                                                               |
+| **Summary at a glance**      | Coloured pill counts on the first line — scannable from across the room.                                                                                 |
+| **`watch`-friendly**         | Stable, line-oriented output; no spinners, no cursor-move escapes.                                                                                       |
+| **Zero configuration**       | Reads `~/.claude/sessions/` and `~/.claude/projects/`. Nothing to set up.                                                                                |
 
 ## Install
 
@@ -73,13 +73,13 @@ watch -n 1 -c claude-busy-monitor         # live refresh (the -c keeps colours)
 The output is one summary line followed by one line per session.
 Each session line reads:
 
-| Column | Meaning                                                       |
-| ------ | ------------------------------------------------------------- |
-| 1      | session id (first 12 hex chars)                               |
+| Column | Meaning                                                        |
+| ------ | -------------------------------------------------------------- |
+| 1      | session id (first 12 hex chars)                                |
 | 2      | state pill — `busy` (red) / `asking` (yellow) / `idle` (green) |
-| 3      | working directory (basename)                                  |
-| 4      | output tokens, cumulative (`out:`)                            |
-| 5      | input tokens, cumulative (`in:` — fresh + cached, summed)     |
+| 3      | working directory (basename)                                   |
+| 4      | output tokens, cumulative (`out:`)                             |
+| 5      | input tokens, cumulative (`in:` — fresh + cached, summed)      |
 
 ### Library
 
