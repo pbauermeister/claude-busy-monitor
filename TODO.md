@@ -22,6 +22,8 @@ Decision deferred to a tooling-audit task: stay hand-rolled (local-only, full un
 
 **Streamlining angle** — the Makefile is ~225 LOC across ~25 targets in 4 user-facing groups (Quality, Tests, Build and install, Publish to PyPI). For a single-CLI / no-deps project this is a lot of boilerplate. Audit candidates: drop legacy install/uninstall targets if unused in practice, fold rarely-invoked targets into others, consider whether `pyproject.toml` script entries or hatch-build hooks could replace Makefile recipes. Goal: cut ~50% LOC while keeping the gate semantics (`publish-quality` cycle is the keeper).
 
+**Prerequisite for removing `install-legacy` / `uninstall-legacy`**: the dependent project `arduino-esp32-tft-terminal` must first be made venv-compliant. It currently relies on the user-wide pip install (the "temporary hack" of Makefile note (2)) to import `claude-busy-monitor` as a library. Once it activates a venv and installs from PyPI, the legacy targets become removable.
+
 **Slim post-publish verifier** — `make publish-verify` running `uvx --from "claude-busy-monitor==$VERSION" claude-busy-monitor --version` to confirm PyPI propagation + wheel installability in a throwaway env. ~10 lines, ~10 seconds. Heavy version (full smoke suite from PyPI install) is overkill for this project (no deps, single entry, same install codepath as local).
 
 ### 2. Install template for GH tickets (bug, feature request)
