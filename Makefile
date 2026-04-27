@@ -9,19 +9,19 @@
 #    - Low-level  targets: no other-target deps; recipe does ONE thing.
 #    - High-level targets: compose low-levels only; NO high→high (neither
 #      via `target: deps` lines nor via `$(MAKE) X` submakes in recipes).
-#      MARK each high-level target with a `# Purpose: <low-level list>`
-#      comment immediately above its `.PHONY:` line. This comment is the
-#      FORMAL marker that distinguishes high-level from low-level — there
-#      is no naming convention that does the same job. Continuation lines
-#      start with `#` + leading whitespace (no new `Purpose:` keyword).
+#      MARK each high-level target by putting a COLON in its `##` doc
+#      string: `<short purpose>: <low-level summary>`. The colon is the
+#      formal marker — no naming convention does the same job. The summary
+#      after the colon is informative (e.g. `lint unit smoke`); it need
+#      not enumerate every composed target. Low-level doc strings MUST
+#      NOT contain a colon.
 #    High-level targets live with their purpose group; no dedicated section.
 #    Audit: scan every `target: …` line and every `$(MAKE) …` in recipes;
-#    each referent must be a low-level target. The Purpose comment lists
-#    the same set, in execution order.
+#    each referent must be a low-level target.
 #
-# 2. Help docstrings — ≤60 CHARS (so `make help` lines fit 80 columns):
-#    Format: `target: ## doc string here`. `make help` prints
-#    `  <target><pad-to-col-20><doc>`, so doc room = 80 − 20 = 60.
+# 2. Help docstrings — ≤60 CHARS (so `make help` lines fit 80 columns).
+#    Each target's doc follows `##` on its target line.
+#    `make help` prints `  <target><pad-to-col-20><doc>`, room = 60 cols.
 #    Verify after edits: `make help | awk '{print length}' | sort -nr | head`.
 # ============================================================================
 
@@ -86,9 +86,8 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
-# Purpose: lint test-unit test-smoke
 .PHONY: check
-check: lint test-unit test-smoke ## lint + unit + smoke (CI / pre-PR)
+check: lint test-unit test-smoke ## CI/pre-PR check: lint unit smoke
 
 ################################################################################
 ## Tests:: ##
@@ -108,13 +107,11 @@ test-e2e: ## run e2e tests (slow; drives real Claude Code)
 	uv sync --extra dev --extra e2e
 	uv run pytest tests/e2e
 
-# Purpose: test-unit test-smoke
 .PHONY: test-full
-test-full: test-unit test-smoke ## unit + smoke (fast default)
+test-full: test-unit test-smoke ## fast default tests: unit smoke
 
-# Purpose: test-unit test-smoke
 .PHONY: test
-test: test-unit test-smoke ## alias for test-full
+test: test-unit test-smoke ## test-full alias: unit smoke
 
 ################################################################################
 ## Build and install:: ##
@@ -161,10 +158,8 @@ install-legacy: ## install lib user-wide (1) (2)
 uninstall-legacy: ## uninstall lib user-wide (1) (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
-# Purpose: uninstall verify-uninstalled clean lint test-unit test-smoke
-#          install verify-installed
 .PHONY: cycle
-cycle: ## uninstall + verify, clean, tests, install + verify (1)
+cycle: ## from scratch: uninstall clean tests install verify (1)
 	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
@@ -180,10 +175,8 @@ cycle: ## uninstall + verify, clean, tests, install + verify (1)
 ################################################################################
 ## Publish:: ##
 
-# Purpose: lint test-unit test-smoke build uninstall verify-uninstalled
-#          clean install verify-installed
 .PHONY: publish-quality
-publish-quality: ## pre-publish gate: lint + tests + cycle; no upload (1)
+publish-quality: ## pre-publish gate: lint tests build cycle; no upload (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
