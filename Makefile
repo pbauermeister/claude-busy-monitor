@@ -122,8 +122,14 @@ install-legacy: ## install lib user-wide (2)
 uninstall-legacy: ## uninstall lib user-wide (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
+.PHONY: publish-preflight
+publish-preflight: ## pre-flight safety checks for publish (no upload)
+	@bash scripts/publish-preflight.sh
+
 .PHONY: publish
-publish: build ## upload wheel + sdist to PyPI (user-only)
+publish: ## upload wheel + sdist to PyPI (user-only; runs pre-flight first)
+	@bash scripts/publish-preflight.sh
+	$(MAKE) build
 	uv publish
 
 ################################################################################
