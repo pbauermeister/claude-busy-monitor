@@ -45,7 +45,7 @@ After the final deliverable:
 6. **Test coverage review** (tasks that change code): consult the devlog `### 3.5 Test coverage review` subsection. For each code change or refactoring made during the task, decide one of: (a) covered by an existing test — note which, (b) add a new test — the test must also exercise the pre-change code so it would have caught the original failure mode, (c) justify absence — test not worth writing here (e.g. pure prose change, one-off script). Record the decisions in § 3.5.
    This is distinct from step 5 (Test update): step 5 ports _verification commands_ the task produced into the suite; step 6 asks the reverse question — did the task's _own changes_ warrant coverage?
 7. **Gate check**: before proceeding to retrospective, explicitly verify all closure gates — acceptance criteria met, all deliverables committed, user approvals for critical items obtained. If any gate fails, resolve before continuing.
-   - Implementation tasks: `make test-full` must pass
+   - Implementation tasks: `make test` must pass
 8. Task retrospective: draft as a voting table for user review [charter § 12.6]:
 
    | #   | Point             | Agent | User     |

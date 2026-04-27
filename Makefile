@@ -113,8 +113,8 @@ test-e2e: ## run e2e tests (slow; drives real Claude Code)
 	uv sync --extra dev --extra e2e
 	uv run pytest tests/e2e
 
-.PHONY: test-full
-test-full: test-unit test-smoke ## fast default tests: unit smoke
+.PHONY: test
+test: test-unit test-smoke ## fast default tests: unit smoke
 
 ################################################################################
 ## Build and install:: ##
