@@ -12,7 +12,7 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 1. Publication to PyPI via the `Makefile` `publish` target (added in GH #1).
 2. May only be called/tested by the user.
-3. Follow-up after publish + a few releases without breaking API change: bump README status badge from `alpha` → `beta` (and pyproject `Development Status :: 3 - Alpha` → `4 - Beta`). Trigger is API stability, not the publish itself.
+3. Follow-up after publish + a soak window with real usage: bump status straight from `alpha` → stable (skip beta). README badge `status-alpha-orange` → `status-stable-brightgreen`; pyproject classifier `Development Status :: 3 - Alpha` → `5 - Production/Stable`; version `0.x` → `1.0.0`. Rationale: 5-name public API, semver covers any later break; Beta-as-middle-step adds ceremony without real safety. Trigger is API confidence, not the publish itself.
 
 ### 2. Install template for GH tickets (bug, feature request)
 
