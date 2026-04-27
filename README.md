@@ -47,13 +47,31 @@ What it deliberately does **not** do:
 
 ## Install
 
+Python 3.11+ is the only prerequisite.
+
+### As a command (most users)
+
 ```bash
-pip install claude-busy-monitor
+pipx install claude-busy-monitor
 # or, with uv:
 uv tool install claude-busy-monitor
 ```
 
-Only prerequisite is Python 3.11+.
+Both put `claude-busy-monitor` in `~/.local/bin/` inside an isolated per-tool venv — no risk to system Python, clean uninstall. If you have neither: `apt install pipx` (Debian/Ubuntu) or `brew install pipx` (macOS).
+
+Avoid `pip install claude-busy-monitor` system-wide on modern distros (PEP 668 marks system Python as managed; you'd hit `externally-managed-environment` and `--break-system-packages` is a last-resort override, not a recommendation).
+
+### As a library
+
+In your project's virtualenv:
+
+```bash
+pip install claude-busy-monitor
+# or, with uv:
+uv add claude-busy-monitor
+```
+
+Then `from claude_busy_monitor import get_sessions, get_state_counts, ClaudeState` (full API in [Usage > Library](#library) below).
 
 ### From source (contributors)
 

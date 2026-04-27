@@ -1,5 +1,9 @@
 # Changes
 
+## Version 1.0.2:
+
+- README install section restructured by user intent: **As a command** (recommends `pipx install` / `uv tool install` — isolated per-tool venv, no PEP 668 grief), **As a library** (`pip install` in project venv), **From source** (contributors). The previous wording suggested bare `pip install claude-busy-monitor` which fails on modern PEP 668-marked distros (Debian 12+, Ubuntu 23+, etc.).
+
 ## Version 1.0.1:
 
 - README install section now leads with `pip install` / `uv tool install` from PyPI (project is live there).
