@@ -36,7 +36,7 @@ VENV  ?= .venv
 CLI   ?= $(HOME)/.local/bin/claude-busy-monitor
 
 ################################################################################
-## General commands:: ##
+## General:: ##
 
 .PHONY: help
 help: ## print this help
@@ -58,7 +58,7 @@ help: ## print this help
 ## Setup:: ##
 
 .PHONY: require
-require: ## install uv (idempotent; Linux/macOS via Astral installer)
+require: ## install uv (idempotent; Linux/macOS only)
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "uv already installed: $$(uv --version)"; \
 	else \
@@ -93,7 +93,7 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff check --fix src
 
 .PHONY: check
-check: lint test-unit test-smoke ## CI/pre-PR check: lint unit smoke
+check: lint test-unit test-smoke ## CI/pre-PR gate: lint unit smoke
 
 ################################################################################
 ## Tests:: ##
@@ -115,9 +115,6 @@ test-e2e: ## run e2e tests (slow; drives real Claude Code)
 
 .PHONY: test-full
 test-full: test-unit test-smoke ## fast default tests: unit smoke
-
-.PHONY: test
-test: test-unit test-smoke ## test-full alias: unit smoke
 
 ################################################################################
 ## Build and install:: ##
