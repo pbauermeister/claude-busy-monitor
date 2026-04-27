@@ -76,6 +76,10 @@ The other four pre-flight guards still run; only the branch identity is waived.
 ## 3. Publish
 
 1. **Bump `CHANGES.md`** — add `## Version X.Y.Z:` at the top with the changelog for this release. The version regex in `pyproject.toml` reads this single source of truth.
+
+   **Version convention**:
+   - `X.Y.Z` — anything that goes into the wheel and changes user-visible state (code, README content, public docs).
+   - `X.Y.Z.postN` — PEP 440 post-release; **reserved for publishing-mechanism fixes only** (same wheel content re-uploaded with corrected metadata, e.g. README rendering broken on PyPI). Code changes never warrant a `.postN`.
 2. **Commit and push** the bump:
 
    ```bash
