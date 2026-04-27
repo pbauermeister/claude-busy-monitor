@@ -8,15 +8,11 @@ This file captures items as they arise during work, so nothing is forgotten with
 
 ## TODO Items
 
-<!-- Item 1 (build skeleton) graduated to GH issue #1 — see architecture/devlog/0001-build-skeleton.md -->
-<!-- Item 1 (split monolith) graduated to GH issue #3 — see architecture/devlog/0003-split-monolith.md -->
-<!-- Item 1 (test scaffold) graduated to GH issue #5 — see architecture/devlog/0005-test-scaffold.md -->
-<!-- Item 1 (README polish) graduated to GH issue #7 — see architecture/devlog/0007-readme-polish.md -->
-
 ### 1. PyPI publish
 
 1. Publication to PyPI via the `Makefile` `publish` target (added in GH #1).
 2. May only be called/tested by the user.
+3. Follow-up after publish + a few releases without breaking API change: bump README status badge from `alpha` → `beta` (and pyproject `Development Status :: 3 - Alpha` → `4 - Beta`). Trigger is API stability, not the publish itself.
 
 ### 2. Install template for GH tickets (bug, feature request)
 
