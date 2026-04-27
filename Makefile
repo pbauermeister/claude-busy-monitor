@@ -9,9 +9,15 @@
 #    - Low-level  targets: no other-target deps; recipe does ONE thing.
 #    - High-level targets: compose low-levels only; NO high→high (neither
 #      via `target: deps` lines nor via `$(MAKE) X` submakes in recipes).
+#      MARK each high-level target with a `# Purpose: <low-level list>`
+#      comment immediately above its `.PHONY:` line. This comment is the
+#      FORMAL marker that distinguishes high-level from low-level — there
+#      is no naming convention that does the same job. Continuation lines
+#      start with `#` + leading whitespace (no new `Purpose:` keyword).
 #    High-level targets live with their purpose group; no dedicated section.
 #    Audit: scan every `target: …` line and every `$(MAKE) …` in recipes;
-#    each referent must be a low-level target.
+#    each referent must be a low-level target. The Purpose comment lists
+#    the same set, in execution order.
 #
 # 2. Help docstrings — ≤60 CHARS (so `make help` lines fit 80 columns):
 #    Format: `target: ## doc string here`. `make help` prints
@@ -80,6 +86,7 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
+# Purpose: lint test-unit test-smoke
 .PHONY: check
 check: lint test-unit test-smoke ## lint + unit + smoke (CI / pre-PR)
 
@@ -101,9 +108,11 @@ test-e2e: ## run e2e tests (slow; drives real Claude Code)
 	uv sync --extra dev --extra e2e
 	uv run pytest tests/e2e
 
+# Purpose: test-unit test-smoke
 .PHONY: test-full
 test-full: test-unit test-smoke ## unit + smoke (fast default)
 
+# Purpose: test-unit test-smoke
 .PHONY: test
 test: test-unit test-smoke ## alias for test-full
 
@@ -123,7 +132,7 @@ uninstall: ## uninstall from user account (1)
 	uv tool uninstall claude-busy-monitor
 
 .PHONY: verify-installed
-verify-installed: ## assert $(CLI) present and --version matches CHANGES.md
+verify-installed: ## assert command present and --version matches CHANGES.md
 	@if [ ! -x "$(CLI)" ]; then \
 		echo "verify-installed: missing $(CLI) (run 'make install' first)" >&2; exit 1; \
 	fi; \
@@ -138,7 +147,7 @@ verify-installed: ## assert $(CLI) present and --version matches CHANGES.md
 	echo "verify-installed: OK ($(CLI) v$$ACTUAL)"
 
 .PHONY: verify-uninstalled
-verify-uninstalled: ## assert $(CLI) absent
+verify-uninstalled: ## assert command absent
 	@if [ -e "$(CLI)" ]; then \
 		echo "verify-uninstalled: $(CLI) still present (run 'make uninstall' first)" >&2; exit 1; \
 	fi; \
@@ -152,6 +161,8 @@ install-legacy: ## install lib user-wide (1) (2)
 uninstall-legacy: ## uninstall lib user-wide (1) (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
+# Purpose: uninstall verify-uninstalled clean lint test-unit test-smoke
+#          install verify-installed
 .PHONY: cycle
 cycle: ## uninstall + verify, clean, tests, install + verify (1)
 	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
@@ -169,6 +180,8 @@ cycle: ## uninstall + verify, clean, tests, install + verify (1)
 ################################################################################
 ## Publish:: ##
 
+# Purpose: lint test-unit test-smoke build uninstall verify-uninstalled
+#          clean install verify-installed
 .PHONY: publish-quality
 publish-quality: ## pre-publish gate: lint + tests + cycle; no upload (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
