@@ -23,6 +23,12 @@
 #    Each target's doc follows `##` on its target line.
 #    `make help` prints `  <target><pad-to-col-20><doc>`, room = 60 cols.
 #    Verify after edits: `make help | awk '{print length}' | sort -nr | head`.
+#
+# 3. Order targets within a section by LOGICAL CALL SEQUENCE — the order a
+#    user would naturally invoke them (e.g. install before verify-installed;
+#    uninstall before verify-uninstalled). High-level targets typically come
+#    last (they call the low-levels above), unless a high-level is the
+#    recommended entry (e.g. publish-quality before publish in Publish::).
 # ============================================================================
 
 SHELL := /bin/bash
@@ -124,10 +130,6 @@ build: ## build wheel + sdist into dist/
 install: ## install in user account (CLI on ~/.local/bin/) (1)
 	uv tool install --reinstall .
 
-.PHONY: uninstall
-uninstall: ## uninstall from user account (1)
-	uv tool uninstall claude-busy-monitor
-
 .PHONY: verify-installed
 verify-installed: ## assert command present and --version matches CHANGES.md
 	@if [ ! -x "$(CLI)" ]; then \
@@ -142,6 +144,10 @@ verify-installed: ## assert command present and --version matches CHANGES.md
 		echo "verify-installed: version mismatch (expected $$EXPECTED, got '$$ACTUAL')" >&2; exit 1; \
 	fi; \
 	echo "verify-installed: OK ($(CLI) v$$ACTUAL)"
+
+.PHONY: uninstall
+uninstall: ## uninstall from user account (1)
+	uv tool uninstall claude-busy-monitor
 
 .PHONY: verify-uninstalled
 verify-uninstalled: ## assert command absent
@@ -159,7 +165,7 @@ uninstall-legacy: ## uninstall lib user-wide (1) (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
 .PHONY: cycle
-cycle: ## from scratch: uninstall clean tests install verify (1)
+cycle: ## from scratch: uninstall clean lint tests install verify (1)
 	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
@@ -176,7 +182,7 @@ cycle: ## from scratch: uninstall clean tests install verify (1)
 ## Publish:: ##
 
 .PHONY: publish-quality
-publish-quality: ## pre-publish gate: lint tests build cycle; no upload (1)
+publish-quality: ## pre-publish gate: lint tests build reinstall verify (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
