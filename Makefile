@@ -4,7 +4,7 @@
 # Target layering (#11): two levels.
 #   Low-level   — no other-target deps, recipe does one thing.
 #   High-level  — composes low-levels only (no high→high).
-# High-level targets are grouped at the bottom of this file.
+# High-level targets live with their purpose group, not in a dedicated section.
 
 SHELL := /bin/bash
 VENV  ?= .venv
@@ -67,6 +67,9 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
+.PHONY: check
+check: lint test-unit test-smoke ## lint + unit + smoke (CI / pre-PR)
+
 ################################################################################
 ## Tests:: ##
 
@@ -76,14 +79,20 @@ test-unit: ## run unit tests (fast, no I/O)
 	uv run pytest tests/unit
 
 .PHONY: test-smoke
-test-smoke: ## run smoke tests (subprocess invocations, no real Claude)
+test-smoke: ## run smoke tests (subprocess; no real Claude)
 	uv sync --extra dev
 	uv run pytest tests/smoke
 
 .PHONY: test-e2e
-test-e2e: ## run e2e tests (slow — drives real Claude Code)
+test-e2e: ## run e2e tests (slow; drives real Claude Code)
 	uv sync --extra dev --extra e2e
 	uv run pytest tests/e2e
+
+.PHONY: test-full
+test-full: test-unit test-smoke ## unit + smoke (fast default)
+
+.PHONY: test
+test: test-unit test-smoke ## alias for test-full
 
 ################################################################################
 ## Build and install:: ##
@@ -93,11 +102,11 @@ build: ## build wheel + sdist into dist/
 	uv build
 
 .PHONY: install
-install: ## install in the user's account (CLI on ~/.local/bin/)
+install: ## install in user account (CLI on ~/.local/bin/) (1)
 	uv tool install --reinstall .
 
 .PHONY: uninstall
-uninstall: ## uninstall from the user's account
+uninstall: ## uninstall from user account (1)
 	uv tool uninstall claude-busy-monitor
 
 .PHONY: verify-installed
@@ -123,39 +132,15 @@ verify-uninstalled: ## assert $(CLI) absent
 	echo "verify-uninstalled: OK ($(CLI) absent)"
 
 .PHONY: install-legacy
-install-legacy: ## install lib user-wide (2)
+install-legacy: ## install lib user-wide (1) (2)
 	uv pip install --user . || pip install --user --break-system-packages .
 
 .PHONY: uninstall-legacy
-uninstall-legacy: ## uninstall lib user-wide (2)
+uninstall-legacy: ## uninstall lib user-wide (1) (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
-.PHONY: publish
-publish: ## upload wheel + sdist to PyPI (user-only; raw — use publish-quality first)
-	uv publish
-
-################################################################################
-## Cleanup:: ##
-
-.PHONY: clean
-clean: ## remove venv, build artefacts, caches
-	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
-	find . -type d -name __pycache__ -prune -exec rm -rf {} +
-
-################################################################################
-## High-level compositions:: ##
-
-.PHONY: test-full
-test-full: test-unit test-smoke ## unit + smoke (fast default)
-
-.PHONY: test
-test: test-unit test-smoke ## alias for test-full (same dep set; not nested)
-
-.PHONY: check
-check: lint test-unit test-smoke ## lint + unit + smoke (CI / pre-PR convenience)
-
 .PHONY: cycle
-cycle: ## full cycle: uninstall → verify → clean → lint+tests → install → verify (1)
+cycle: ## uninstall + verify, clean, tests, install + verify (1)
 	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
@@ -168,8 +153,11 @@ cycle: ## full cycle: uninstall → verify → clean → lint+tests → install 
 	$(MAKE) install
 	$(MAKE) verify-installed
 
+################################################################################
+## Publish:: ##
+
 .PHONY: publish-quality
-publish-quality: ## max-quality gate before 'make publish' — verifies, does NOT upload (1)
+publish-quality: ## pre-publish gate: lint + tests + cycle; no upload (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
@@ -183,6 +171,18 @@ publish-quality: ## max-quality gate before 'make publish' — verifies, does NO
 	$(MAKE) install
 	$(MAKE) verify-installed
 	@echo "publish-quality: all gates green. Run 'make publish' to upload."
+
+.PHONY: publish
+publish: ## upload to PyPI (raw; use publish-quality first)
+	uv publish
+
+################################################################################
+## Cleanup:: ##
+
+.PHONY: clean
+clean: ## remove venv, build artefacts, caches
+	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +
 
 
 ################################################################################
