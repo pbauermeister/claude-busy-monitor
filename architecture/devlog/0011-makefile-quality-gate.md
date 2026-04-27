@@ -9,7 +9,7 @@
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -37,7 +37,7 @@ Unit test for `--version` (drive `main()`, assert exit 0 + version string). No a
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
