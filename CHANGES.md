@@ -1,5 +1,10 @@
 # Changes
 
+## Version 1.0.0:
+
+- Promote from alpha to stable. Public API frozen — semver guarantees apply from now on.
+- No functional changes from `0.1.0.post1`.
+
 ## Version 0.1.0.post1:
 
 - README hero image now uses an absolute GitHub-raw URL so it renders on PyPI (relative paths don't resolve in the PyPI project description).

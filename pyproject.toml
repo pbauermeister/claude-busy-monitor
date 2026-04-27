@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 authors = [{ name = "Pascal Bauermeister", email = "pascal.bauermeister@gmail.com" }]
 keywords = ["claude", "monitoring", "cli"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
