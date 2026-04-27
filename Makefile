@@ -183,6 +183,7 @@ publish-quality: ## pre-publish gate: lint tests reinstall preflight build (1)
 	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
 	@echo "Ctrl-C within 2 seconds to abort."
 	@sleep 2
+	uv sync --extra dev --reinstall-package claude-busy-monitor
 	$(MAKE) lint
 	$(MAKE) test-unit
 	$(MAKE) test-smoke
@@ -206,7 +207,7 @@ publish: ## upload to PyPI (raw; use publish-quality first) (3)
 	uv publish
 
 .PHONY: publish-tag
-publish-tag: ## tag CHANGES.md version and push to origin (1)
+publish-tag: ## tag GitHub project from CHANGES.md version
 	@bash scripts/publish-tag.sh
 
 ################################################################################

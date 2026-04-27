@@ -1,9 +1,11 @@
 # Changes
 
-## Version 1.0.0.post1:
+## Version 1.0.1:
 
 - README install section now leads with `pip install` / `uv tool install` from PyPI (project is live there).
 - README tagline corrected: "your Claude Code sessions" instead of "every Claude Code session" — `~/.claude/sessions/` is per-user, the tool sees only the running user's sessions.
+- Makefile `publish-quality` recipe now refreshes the editable `.venv` install (`uv sync --reinstall-package`) before lint/tests so a just-bumped CHANGES.md version is reflected in `__version__` — fixes the silent test-version-mismatch failure mode after a version bump.
+- Makefile `publish-tag` doc string clarified: "tag GitHub project from CHANGES.md version" (drops the misleading `(1)` user-account marker — publish-tag only touches local + origin git refs, not the user account).
 
 ## Version 1.0.0:
 
