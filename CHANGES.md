@@ -1,5 +1,10 @@
 # Changes
 
+## Version 1.0.0.post1:
+
+- README install section now leads with `pip install` / `uv tool install` from PyPI (project is live there).
+- README tagline corrected: "your Claude Code sessions" instead of "every Claude Code session" — `~/.claude/sessions/` is per-user, the tool sees only the running user's sessions.
+
 ## Version 1.0.0:
 
 - Promote from alpha to stable. Public API frozen — semver guarantees apply from now on.

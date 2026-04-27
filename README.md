@@ -47,19 +47,26 @@ What it deliberately does **not** do:
 
 ## Install
 
-PyPI publish is on the roadmap; until then, the install path is `git` + `make`:
+```bash
+pip install claude-busy-monitor
+# or, with uv:
+uv tool install claude-busy-monitor
+```
+
+Only prerequisite is Python 3.11+.
+
+### From source (contributors)
 
 ```bash
 git clone https://github.com/pbauermeister/claude-busy-monitor.git
 cd claude-busy-monitor
-make require   # installs uv if missing (idempotent; Linux/macOS)
-make install   # installs the command globally via `uv tool install .`
+make require        # installs uv if missing (idempotent; Linux/macOS)
+make venv-activate  # creates .venv, syncs dev deps, opens an activated shell
+# or, to install the local source globally for end-to-end use:
+make install        # = uv tool install .
 ```
 
-Only prerequisite is Python 3.11+; `make require` bootstraps [`uv`](https://github.com/astral-sh/uv) for you.
-
-To work on the project itself rather than just use it, run `make venv-activate` instead — it creates `.venv`, syncs dev deps, and drops you into an activated shell.
-`make help` lists every Makefile target (lint, format, test-unit / smoke / e2e, build).
+`make help` lists every target (lint, format, test, build, publish-quality, …).
 
 ## Usage
 
