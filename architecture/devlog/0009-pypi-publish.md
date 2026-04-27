@@ -120,19 +120,35 @@ Within charter scope.
 
 ### 3.7 Retrospective
 
-| #   | Point                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Agent    | User |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ---- |
-| 1   | Verified `uv publish` token sources via `--help` before answering — kept the credential-storage answer grounded                                                                                                                                                                                                                                                                                                                                        | well     | ?    |
-| 2   | Pre-flight script extraction wasn't in the mandate but unlocked clean smoke testing — improvement on the planned shape                                                                                                                                                                                                                                                                                                                                 | well     | ?    |
-| 3   | Plan said 4 guards, shipped 5 — flagged in commit instead of resetting attestation (form-level mismatch, not a meaning change)                                                                                                                                                                                                                                                                                                                         | not well | ?    |
-| 4   | `PUBLISH_ALLOW_ANY_BRANCH` added mid-task in response to actual workflow need (test publish without merging)                                                                                                                                                                                                                                                                                                                                           | well     | ?    |
-| 5   | Missed the #9 ↔ #11 reciprocal dependency at #11 mandate — surfaced only when about to write the Makefile refactor                                                                                                                                                                                                                                                                                                                                     | not well | ?    |
-| 6   | Devlog compression hit a structural floor (104 → 70 = 67%); 60% target proved unreachable without dropping mandated sections                                                                                                                                                                                                                                                                                                                           | surprise | ?    |
-| 7   | Resume-after-#11 sequence (merge main, take-theirs/re-implement-ours, wire preflight into publish-quality) was clean                                                                                                                                                                                                                                                                                                                                   | well     | ?    |
-| 8   | Real-publish caught five bugs synthetic tests didn't (build/clean ordering, keyring username, PyPI README image, tag workflow, help-grep `#`) — fixed inline across two `0.1.x` rounds                                                                                                                                                                                                                                                                 | not well | ?    |
-| 9   | Two live publishes succeeded (0.1.0 + 0.1.0.post1); `publish-tag` verified end-to-end (tag → push → next pre-flight rejects)                                                                                                                                                                                                                                                                                                                           | well     | ?    |
-| 10  | **Framework-trigger missed at mandate**. Per CLAUDE.md `Code-reuse: frameworks and libraries`, publishing/release management is a known solved space (`python-semantic-release`, `release-please`, `pypa/gh-action-pypi-publish`, `twine check`); we hand-rolled ~250 LOC. Defensible (local-only constraint) but the alternatives discussion should have happened before code was written. Captured as TODO.md item 2 for a future tooling-audit task | not well | ?    |
-| 11  | `publish` target made self-contained for keyring auth at user's late suggestion — single one-time `keyring set` now suffices, no per-session env-var exports needed                                                                                                                                                                                                                                                                                    | well     | ?    |
+| #   | Point                                                        | Agent    | User |
+| --- | ------------------------------------------------------------ | -------- | ---- |
+| 1   | Verified uv-publish token sources before answering [^a]      | well     | ?    |
+| 2   | Pre-flight script extraction unlocked clean smoke tests [^b] | well     | ?    |
+| 3   | Plan said 4 guards, shipped 5 — flagged in commit [^c]       | not well | ?    |
+| 4   | `PUBLISH_ALLOW_ANY_BRANCH` added mid-task on demand          | well     | ?    |
+| 5   | Missed #9 ↔ #11 reciprocal dependency [^d]                   | not well | ?    |
+| 6   | Devlog compression hit structural floor (67% vs 60%) [^e]    | surprise | ?    |
+| 7   | Resume-after-#11 (merge + take-theirs) was clean             | well     | ?    |
+| 8   | Real-publish caught 5 bugs synthetic tests missed [^f]       | not well | ?    |
+| 9   | Two live publishes + `publish-tag` end-to-end green          | well     | ?    |
+| 10  | **Framework-trigger missed** at mandate [^g]                 | not well | ?    |
+| 11  | `publish` made self-contained for keyring auth [^h]          | well     | ?    |
+
+[^a]: kept the credential-storage answer fact-checked vs invented.
+
+[^b]: shell script vs Make-escaped recipe; smoke test invokes script directly against tmp git repos.
+
+[^c]: counted the `CHANGES.md` version-extract as a guard. Form-level mismatch, not a meaning change. Avoided resetting § 2 attestation.
+
+[^d]: surfaced only when about to write the Makefile refactor; should have surfaced at #11 mandate.
+
+[^e]: target was 60% body lines (104 → 70 = 67% achieved). Floor is mandated section overhead (header + 3 metadata blocks + 5 mandated subsections + governance trace + resource consumption).
+
+[^f]: build/clean ordering wiping `dist/`; keyring-needs-username; PyPI README image (relative URL); tag-after-publish workflow; help-grep `^##[^#]*$` filtering an inline `#` comment in a Notes line. All fixed inline across the two `0.1.x` rounds.
+
+[^g]: per CLAUDE.md `Code-reuse: frameworks and libraries`. Publishing/release management is a known solved space (`python-semantic-release`, `release-please`, `pypa/gh-action-pypi-publish`, `twine check`); we hand-rolled ~250 LOC. Defensible (local-only constraint) but the alternatives discussion should have preceded code. Captured in TODO.md § 2 for a future tooling-audit task.
+
+[^h]: user's late suggestion. `make publish` inline-exports `UV_KEYRING_PROVIDER` + `UV_PUBLISH_USERNAME` so a one-time `keyring set` suffices — no per-session shell exports.
 
 ### 3.8 Demo scenario
 
