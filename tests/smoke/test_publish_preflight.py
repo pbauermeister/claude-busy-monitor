@@ -5,6 +5,7 @@ each guard. The script itself runs in cwd, so each test sets up an isolated
 tmp git repo and invokes the script there.
 """
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -24,12 +25,19 @@ def _git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProc
     )
 
 
-def _run_preflight(repo: Path) -> subprocess.CompletedProcess:
+def _run_preflight(
+    repo: Path, env_overrides: dict[str, str] | None = None
+) -> subprocess.CompletedProcess:
+    env = dict(os.environ)
+    env.pop("PUBLISH_ALLOW_ANY_BRANCH", None)  # ensure clean baseline
+    if env_overrides:
+        env.update(env_overrides)
     return subprocess.run(
         ["bash", str(PREFLIGHT)],
         cwd=repo,
         capture_output=True,
         text=True,
+        env=env,
     )
 
 
@@ -79,6 +87,17 @@ def test_preflight_rejects_wrong_branch(repo_with_origin: Path):
     assert result.returncode != 0
     assert "branch must be 'main'" in result.stderr
     assert "feature" in result.stderr
+    assert "PUBLISH_ALLOW_ANY_BRANCH" in result.stderr  # hint mentions the bypass
+
+
+def test_preflight_bypasses_branch_check_with_env_var(repo_with_origin: Path):
+    _git(repo_with_origin, "checkout", "-b", "feature")
+    result = _run_preflight(repo_with_origin, {"PUBLISH_ALLOW_ANY_BRANCH": "1"})
+    assert result.returncode == 0, result.stderr
+    assert "WARNING" in result.stderr
+    assert "PUBLISH_ALLOW_ANY_BRANCH" in result.stderr
+    assert "feature" in result.stderr
+    assert "OK" in result.stdout  # other guards still ran and passed
 
 
 def test_preflight_rejects_modified_tree(repo_with_origin: Path):

@@ -4,11 +4,16 @@
 #
 # Checks (in order, cheapest first):
 #   1. CHANGES.md has a `## Version X.Y.Z:` heading at the top.
-#   2. Current branch is `main`.
+#   2. Current branch is `main` (bypass: PUBLISH_ALLOW_ANY_BRANCH=1).
 #   3. Working tree is clean (no modified, staged, or untracked files
 #      per .gitignore — `git status --porcelain` is empty).
 #   4. Tag `v$VERSION` does not exist locally.
 #   5. Tag `v$VERSION` does not exist on `origin` (network call).
+#
+# Env vars:
+#   PUBLISH_ALLOW_ANY_BRANCH — non-empty bypasses the branch check, with
+#     a WARNING. Intended for testing the publish process itself (e.g.
+#     during early publish-workflow iterations), not for normal use.
 #
 # Run from the repository root. Tested by tests/smoke/test_publish_preflight.py.
 
@@ -22,8 +27,13 @@ fi
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$BRANCH" != "main" ]; then
-    echo "publish-preflight: branch must be 'main' (current: '$BRANCH')" >&2
-    exit 1
+    if [ -n "${PUBLISH_ALLOW_ANY_BRANCH:-}" ]; then
+        echo "publish-preflight: WARNING — branch check bypassed (PUBLISH_ALLOW_ANY_BRANCH set, branch='$BRANCH')" >&2
+    else
+        echo "publish-preflight: branch must be 'main' (current: '$BRANCH')" >&2
+        echo "publish-preflight: hint — set PUBLISH_ALLOW_ANY_BRANCH=1 to bypass (intended for publish-process testing, not normal use)" >&2
+        exit 1
+    fi
 fi
 
 if [ -n "$(git status --porcelain)" ]; then

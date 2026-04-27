@@ -57,6 +57,17 @@ After this, `make publish` finds the token automatically — no env var needed.
 
 The last guard makes a network call (`git ls-remote`); the rest are local. All run before `uv publish`, so a rejection costs no network traffic to PyPI.
 
+### 2.1 Bypass: testing the publish process from a feature branch
+
+Setting `PUBLISH_ALLOW_ANY_BRANCH=1` skips the branch check (with a `WARNING` line) so you can rehearse `make publish-preflight` and `make publish` from a non-`main` branch. Intended for testing the publish workflow itself (e.g. iterating on `0.1.x` bumps to validate this very pipeline), **not** for normal releases — production releases must happen from `main` so the published artefact is reproducible from `git checkout v$VERSION`.
+
+```bash
+PUBLISH_ALLOW_ANY_BRANCH=1 make publish-preflight
+PUBLISH_ALLOW_ANY_BRANCH=1 make publish
+```
+
+The other four guards still run; only the branch identity is waived.
+
 ## 3. Publish
 
 1. **Bump `CHANGES.md`** — add `## Version X.Y.Z:` at the top with the changelog for this release. The version regex in `pyproject.toml` reads this single source of truth.
