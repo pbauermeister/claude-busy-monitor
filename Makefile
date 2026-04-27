@@ -1,8 +1,14 @@
 # Just type 'make' to get help.
 # First run on a fresh box: 'make require', then 'make help'.
+#
+# Target layering (#11): two levels.
+#   Low-level   — no other-target deps, recipe does one thing.
+#   High-level  — composes low-levels only (no high→high).
+# High-level targets are grouped at the bottom of this file.
 
 SHELL := /bin/bash
 VENV  ?= .venv
+CLI   ?= $(HOME)/.local/bin/claude-busy-monitor
 
 ################################################################################
 ## General commands:: ##
@@ -61,20 +67,6 @@ format: ## ruff format + lint autofix (modifies code)
 	uv run ruff format src
 	uv run ruff check --fix src
 
-.PHONY: check
-check: lint test-full ## run lint + test-full (CI / pre-PR convenience)
-
-.PHONY: cycle
-cycle: ## full cycle: uninstall, clean, lint, test, install (1)
-	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
-	@echo "Ctrl-C within 2 seconds to abort."
-	@sleep 2
-	-$(MAKE) uninstall
-	$(MAKE) clean
-	$(MAKE) lint
-	$(MAKE) test
-	$(MAKE) install
-
 ################################################################################
 ## Tests:: ##
 
@@ -93,17 +85,11 @@ test-e2e: ## run e2e tests (slow — drives real Claude Code)
 	uv sync --extra dev --extra e2e
 	uv run pytest tests/e2e
 
-.PHONY: test-full
-test-full: test-unit test-smoke ## unit + smoke (fast default)
-
-.PHONY: test
-test: test-full ## alias for test-full
-
 ################################################################################
 ## Build and install:: ##
 
 .PHONY: build
-build: lint ## build wheel + sdist into dist/
+build: ## build wheel + sdist into dist/
 	uv build
 
 .PHONY: install
@@ -114,6 +100,28 @@ install: ## install in the user's account (CLI on ~/.local/bin/)
 uninstall: ## uninstall from the user's account
 	uv tool uninstall claude-busy-monitor
 
+.PHONY: verify-installed
+verify-installed: ## assert $(CLI) present and --version matches CHANGES.md
+	@if [ ! -x "$(CLI)" ]; then \
+		echo "verify-installed: missing $(CLI) (run 'make install' first)" >&2; exit 1; \
+	fi; \
+	EXPECTED=$$(awk -F'[ :]' '/^## Version / {print $$3; exit}' CHANGES.md); \
+	if [ -z "$$EXPECTED" ]; then \
+		echo "verify-installed: cannot extract version from CHANGES.md" >&2; exit 1; \
+	fi; \
+	ACTUAL=$$("$(CLI)" --version 2>&1 | awk '{print $$NF}'); \
+	if [ "$$ACTUAL" != "$$EXPECTED" ]; then \
+		echo "verify-installed: version mismatch (expected $$EXPECTED, got '$$ACTUAL')" >&2; exit 1; \
+	fi; \
+	echo "verify-installed: OK ($(CLI) v$$ACTUAL)"
+
+.PHONY: verify-uninstalled
+verify-uninstalled: ## assert $(CLI) absent
+	@if [ -e "$(CLI)" ]; then \
+		echo "verify-uninstalled: $(CLI) still present (run 'make uninstall' first)" >&2; exit 1; \
+	fi; \
+	echo "verify-uninstalled: OK ($(CLI) absent)"
+
 .PHONY: install-legacy
 install-legacy: ## install lib user-wide (2)
 	uv pip install --user . || pip install --user --break-system-packages .
@@ -123,7 +131,7 @@ uninstall-legacy: ## uninstall lib user-wide (2)
 	pip uninstall -y claude-busy-monitor || pip uninstall -y --break-system-packages claude-busy-monitor
 
 .PHONY: publish
-publish: build ## upload wheel + sdist to PyPI (user-only)
+publish: ## upload wheel + sdist to PyPI (user-only; raw — use publish-quality first)
 	uv publish
 
 ################################################################################
@@ -133,6 +141,48 @@ publish: build ## upload wheel + sdist to PyPI (user-only)
 clean: ## remove venv, build artefacts, caches
 	rm -rf $(VENV) dist build *.egg-info .ruff_cache .pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+
+################################################################################
+## High-level compositions:: ##
+
+.PHONY: test-full
+test-full: test-unit test-smoke ## unit + smoke (fast default)
+
+.PHONY: test
+test: test-unit test-smoke ## alias for test-full (same dep set; not nested)
+
+.PHONY: check
+check: lint test-unit test-smoke ## lint + unit + smoke (CI / pre-PR convenience)
+
+.PHONY: cycle
+cycle: ## full cycle: uninstall → verify → clean → lint+tests → install → verify (1)
+	@echo "About to uninstall claude-busy-monitor and rebuild from scratch."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	-$(MAKE) uninstall
+	$(MAKE) verify-uninstalled
+	$(MAKE) clean
+	$(MAKE) lint
+	$(MAKE) test-unit
+	$(MAKE) test-smoke
+	$(MAKE) install
+	$(MAKE) verify-installed
+
+.PHONY: publish-quality
+publish-quality: ## max-quality gate before 'make publish' — verifies, does NOT upload (1)
+	@echo "About to run lint + tests + uninstall/install cycle. Does NOT upload."
+	@echo "Ctrl-C within 2 seconds to abort."
+	@sleep 2
+	$(MAKE) lint
+	$(MAKE) test-unit
+	$(MAKE) test-smoke
+	$(MAKE) build
+	-$(MAKE) uninstall
+	$(MAKE) verify-uninstalled
+	$(MAKE) clean
+	$(MAKE) install
+	$(MAKE) verify-installed
+	@echo "publish-quality: all gates green. Run 'make publish' to upload."
 
 
 ################################################################################
