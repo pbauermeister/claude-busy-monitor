@@ -7,7 +7,7 @@ ANSI palette is base-16 — `watch`-friendly.
 import argparse
 from enum import StrEnum
 
-from claude_busy_monitor import ClaudeState, get_sessions, get_state_counts
+from claude_busy_monitor import ClaudeState, __version__, get_sessions, get_state_counts
 
 
 class Ansi(StrEnum):
@@ -52,7 +52,7 @@ def _humanize_count(n: int) -> str:
 
 
 def main() -> int:
-    argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         prog="claude-busy-monitor",
         description=(
             "List active Claude sessions for the current user with their state. "
@@ -60,7 +60,9 @@ def main() -> int:
             "by one line per session with cumulative token totals. Output is "
             "suitable for `watch`."
         ),
-    ).parse_args()
+    )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.parse_args()
 
     sessions = get_sessions()
     state_counts = get_state_counts(sessions)
