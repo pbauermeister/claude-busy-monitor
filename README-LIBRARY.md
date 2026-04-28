@@ -5,15 +5,68 @@ For installation and an overview, see [README.md](README.md).
 
 ## 1. Library API
 
-Public names exported from `claude_busy_monitor`:
+Public names exported from `claude_busy_monitor`.
 
-| Name                              | Kind      | Synopsis                                                                                                                                                                                   |
-| --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ClaudeState`                     | Enum      | `BUSY`, `ASKING`, `IDLE`. `str(state)` is the lower-case name.                                                                                                                             |
-| `TokenStats`                      | dataclass | Cumulative token totals: `output: int`, `input: int` (input sums fresh, cache-create, cache-read).                                                                                         |
-| `ClaudeSession`                   | dataclass | One live session: `path: str` (cwd of the claude process), `name: str` (basename of `path`), `id: str` (session UUID; `""` if unknown), `state: ClaudeState`, `stats: TokenStats \| None`. |
-| `get_sessions()`                  | function  | Returns `list[ClaudeSession]` for the current user. Single filesystem pass, non-blocking. Requires Claude Code v2.1.119+.                                                                  |
-| `get_state_counts(sessions=None)` | function  | Returns `dict[ClaudeState, int]` with every `ClaudeState` key present. Pass an existing session list to keep counts consistent with a previously obtained listing; otherwise it re-scans.  |
+<!-- Mirrors the public symbols of src/claude_busy_monitor/_sessions.py — keep in sync -->
+
+```python
+class ClaudeState(Enum):
+    """The state of a live Claude Code session.
+
+    `str(state)` returns the lower-case state name (`"busy"`,
+    `"asking"`, `"idle"`), matching each member's `value`.
+    """
+
+    BUSY = "busy"      # Processing
+    ASKING = "asking"  # Awaiting the user's answer to a menu/dialog (often a permission prompt)
+    IDLE = "idle"      # Awaiting the user's next prompt
+
+
+@dataclass(frozen=True)
+class TokenStats:
+    """Cumulative token usage for one session, summed over its transcript.
+
+    `input` includes fresh prompt tokens plus cache-create and
+    cache-read tokens; counting only `input_tokens` underreports by
+    roughly an order of magnitude on cached prompts.
+    """
+
+    output: int  # sum of assistant.message.usage.output_tokens
+    input: int   # sum of input_tokens + cache_creation + cache_read
+
+
+@dataclass(frozen=True)
+class ClaudeSession:
+    """One live Claude Code session as seen by the running user."""
+
+    path: str                 # absolute project home (cwd of the claude process)
+    name: str                 # last component of `path`
+    id: str                   # session UUID (stem of the active JSONL file); "" if unknown
+    state: ClaudeState
+    stats: TokenStats | None  # None if the transcript is unreadable
+
+
+def get_sessions() -> list[ClaudeSession]:
+    """Return live Claude sessions for the current user, ordered by probe filename.
+
+    Non-blocking: a single filesystem pass over `~/.claude/sessions/`
+    and `~/.claude/projects/`. Requires Claude Code v2.1.119+; sessions
+    from older versions are silently dropped (their probe file lacks
+    the `status` field this tool relies on).
+    """
+
+
+def get_state_counts(
+    sessions: list[ClaudeSession] | None = None,
+) -> dict[ClaudeState, int]:
+    """Count live sessions by state. Every `ClaudeState` key is present.
+
+    Pass `sessions` (typically an earlier `get_sessions()` result) to
+    keep counts consistent with that listing; otherwise this function
+    calls `get_sessions()` itself, which re-scans the filesystem and
+    may reflect a slightly later state.
+    """
+```
 
 ### 1.1. Example
 
