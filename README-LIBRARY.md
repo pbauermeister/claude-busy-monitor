@@ -99,7 +99,7 @@ TARGETs:
   help               print this help
 
  Setup:
-  require            install uv (idempotent; Linux)
+  require            install uv (idempotent; Linux only)
   venv-activate      start an interactive shell in updated .venv
 
  Quality:
