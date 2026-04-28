@@ -31,9 +31,15 @@ PROJECTS_DIR = Path.home() / ".claude" / "projects"
 
 
 class ClaudeState(Enum):
-    BUSY = "busy"
-    ASKING = "asking"  # Awaiting user answer to a menu/dialog
-    IDLE = "idle"  # Awaiting prompt
+    """The state of a live Claude Code session.
+
+    `str(state)` returns the lower-case state name (`"busy"`,
+    `"asking"`, `"idle"`), matching each member's `value`.
+    """
+
+    BUSY = "busy"  # Processing
+    ASKING = "asking"  # Awaiting the user's answer to a menu/dialog (often a permission prompt)
+    IDLE = "idle"  # Awaiting the user's next prompt
 
     def __str__(self) -> str:
         return self.value
@@ -41,7 +47,12 @@ class ClaudeState(Enum):
 
 @dataclass(frozen=True)
 class TokenStats:
-    """Cumulative token usage for a session."""
+    """Cumulative token usage for one session, summed over its transcript.
+
+    `input` includes fresh prompt tokens plus cache-create and
+    cache-read tokens; counting only `input_tokens` underreports by
+    roughly an order of magnitude on cached prompts.
+    """
 
     output: int  # sum of assistant.message.usage.output_tokens
     input: int  # sum of input_tokens + cache_creation + cache_read
@@ -49,11 +60,13 @@ class TokenStats:
 
 @dataclass(frozen=True)
 class ClaudeSession:
+    """One live Claude Code session as seen by the running user."""
+
     path: str  # absolute project home (cwd of the claude process)
-    name: str  # last component of path
-    id: str  # session id (stem of the active JSONL file), "" if unknown
+    name: str  # last component of `path`
+    id: str  # session UUID (stem of the active JSONL file); "" if unknown
     state: ClaudeState
-    stats: TokenStats | None = None  # None if the jsonl is unreadable
+    stats: TokenStats | None = None  # None if the transcript is unreadable
 
 
 # =============================================================================
@@ -201,9 +214,12 @@ def _load_session_probes() -> list[_SessionProbe]:
 
 
 def get_sessions() -> list[ClaudeSession]:
-    """Return live Claude sessions for the current user, with state.
+    """Return live Claude sessions for the current user, ordered by probe filename.
 
-    Non-blocking: single filesystem pass. Requires Claude Code v2.1.119+.
+    Non-blocking: a single filesystem pass over `~/.claude/sessions/`
+    and `~/.claude/projects/`. Requires Claude Code v2.1.119+; sessions
+    from older versions are silently dropped (their probe file lacks
+    the `status` field this tool relies on).
     """
     probes = _load_session_probes()
     if not probes:
@@ -233,13 +249,12 @@ def get_sessions() -> list[ClaudeSession]:
 def get_state_counts(
     sessions: list[ClaudeSession] | None = None,
 ) -> dict[ClaudeState, int]:
-    """Count live sessions by state. All ClaudeState keys are present.
+    """Count live sessions by state. Every `ClaudeState` key is present.
 
-    Pass `sessions` (typically the result of an earlier `get_sessions()`
-    call) to keep the per-state counts consistent with a previously
-    obtained listing — otherwise this function calls `get_sessions()`
-    itself, which re-scans the filesystem and may reflect a slightly
-    later state.
+    Pass `sessions` (typically an earlier `get_sessions()` result) to
+    keep counts consistent with that listing; otherwise this function
+    calls `get_sessions()` itself, which re-scans the filesystem and
+    may reflect a slightly later state.
     """
     counts = {state: 0 for state in ClaudeState}
     sessions_to_count = sessions if sessions is not None else get_sessions()

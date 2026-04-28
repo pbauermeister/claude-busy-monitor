@@ -58,7 +58,7 @@ help: ## print this help
 ## Setup:: ##
 
 .PHONY: require
-require: ## install uv (idempotent; Linux/macOS only)
+require: ## install uv (idempotent; Linux only)
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "uv already installed: $$(uv --version)"; \
 	else \
