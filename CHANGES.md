@@ -1,5 +1,12 @@
 # Changes
 
+## Version 1.0.3:
+
+- README split: programmer-facing API and `make` target reference moved to new `README-LIBRARY.md`. Main README's Library subsection slimmed to a short example plus a link.
+- README polish: numbered headings (level 2 and 3); macOS and `~/.claude/sessions/` mentions deduped; em-dashes replaced with `;` / `:` / parentheses; Features table dropped the redundant "No daemon, no IPC" row (already in Scope); Compatibility macOS bullet compressed to two lines.
+- README example bug fix: `s.cwd` / `s.session_id` → `s.path` / `s.id`. The dataclass exposes `path` and `id`; the prior example would `AttributeError` at runtime.
+- Makefile `require` target description: "Linux/macOS only" → "Linux only" (matches the Compatibility statement).
+
 ## Version 1.0.2:
 
 - README install section restructured by user intent: **As a command** (recommends `pipx install` / `uv tool install` — isolated per-tool venv, no PEP 668 grief), **As a library** (`pip install` in project venv), **From source** (contributors). The previous wording suggested bare `pip install claude-busy-monitor` which fails on modern PEP 668-marked distros (Debian 12+, Ubuntu 23+, etc.).
