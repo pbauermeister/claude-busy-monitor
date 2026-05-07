@@ -16,7 +16,7 @@ class Ansi(StrEnum):
     RESET = "\x1b[0m"
 
     FG_BLACK = "\x1b[30m"
-    FG_GREY = "\x1b[90m"
+    FG_GREY = "\x1b[37m"
 
     BG_BLACK = "\x1b[40m"
     BG_RED = "\x1b[41m"
