@@ -58,7 +58,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Opus 4.7
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -107,11 +107,11 @@ Legible-muted on all combinations tested; no failure mode reproduced. xterm ligh
 
 ### 3.8 Retrospective
 
-| #   | Point                                                                                                                                                           | Agent    | User          |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------- |
-| 1   | Fast-path was the right shape — mechanical scope, no design ambiguity, single-pass execution                                                                    | well     | _(pending)_   |
-| 2   | First colour candidate (`\x1b[37m`) held across 5 terminal/mode combinations; no iteration despite plan anticipating it                                         | well     | _(pending)_   |
-| 3   | `make check` failed once on `test_version_matches_changes` — editable-wheel stale-vs-CHANGES.md drift; resolved with `--reinstall-package` (factoring candidate) | not well | _(pending)_   |
+| #   | Point                                                                                                                                                            | Agent    | User     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
+| 1   | Fast-path was the right shape — mechanical scope, no design ambiguity, single-pass execution                                                                     | well     | well     |
+| 2   | First colour candidate (`\x1b[37m`) held across 5 terminal/mode combinations; no iteration despite plan anticipating it                                          | well     | well     |
+| 3   | `make check` failed once on `test_version_matches_changes` — editable-wheel stale-vs-CHANGES.md drift; resolved with `--reinstall-package` (factoring candidate) | not well | not well |
 
 ### 3.9 Verdict
 
@@ -125,28 +125,28 @@ Legible-muted on all combinations tested; no failure mode reproduced. xterm ligh
 
 ## Governance trace
 
-| Source                                            | Clause                | Action  | Note                                                                         |
-| ------------------------------------------------- | --------------------- | ------- | ---------------------------------------------------------------------------- |
-| CEREMONIES.md `Fast-path task flow`               | Eligibility check     | applied | mechanical, scope ≤ paragraph, no design decisions                           |
-| CLAUDE.md `No task-related commits on main`       | Branch hygiene        | applied | uncommitted FG_GREY tweak + v1.0.4 stub stashed and moved to task branch    |
-| CLAUDE.md `Naming discipline`                     | Outcome-named         | applied | branch / devlog name describe the WHAT (which badges, what aspect)           |
-| CLAUDE.md `EN_UK for prose`                       | Spelling              | applied | "colour" throughout devlog, CHANGES.md entry, branch name                    |
-| CLAUDE.md `Lean mandate + execution plan`         | Compression           | applied | § 1 + § 2 compressed to ~14 body lines (~60% of free draft)                  |
-| CLAUDE.md `YAGNI`                                 | Scope discipline      | applied | no terminal-capability detection, no new ANSI symbol, no per-state variant   |
-| MEMORY.md `Run make format after every code edit` | Formatter clean       | applied | `make format` run before commit                                              |
-| CLAUDE.md `Review-attestation hook workaround`    | Edit-span widening    | applied | § 3.1 (Manual validation, pre-renumber) added by widening Edit span          |
-| CEREMONIES.md `Task closure`                      | Task closure ceremony | applied | this section                                                                 |
+| Source                                            | Clause                | Action  | Note                                                                       |
+| ------------------------------------------------- | --------------------- | ------- | -------------------------------------------------------------------------- |
+| CEREMONIES.md `Fast-path task flow`               | Eligibility check     | applied | mechanical, scope ≤ paragraph, no design decisions                         |
+| CLAUDE.md `No task-related commits on main`       | Branch hygiene        | applied | uncommitted FG_GREY tweak + v1.0.4 stub stashed and moved to task branch   |
+| CLAUDE.md `Naming discipline`                     | Outcome-named         | applied | branch / devlog name describe the WHAT (which badges, what aspect)         |
+| CLAUDE.md `EN_UK for prose`                       | Spelling              | applied | "colour" throughout devlog, CHANGES.md entry, branch name                  |
+| CLAUDE.md `Lean mandate + execution plan`         | Compression           | applied | § 1 + § 2 compressed to ~14 body lines (~60% of free draft)                |
+| CLAUDE.md `YAGNI`                                 | Scope discipline      | applied | no terminal-capability detection, no new ANSI symbol, no per-state variant |
+| MEMORY.md `Run make format after every code edit` | Formatter clean       | applied | `make format` run before commit                                            |
+| CLAUDE.md `Review-attestation hook workaround`    | Edit-span widening    | applied | § 3.1 (Manual validation, pre-renumber) added by widening Edit span        |
+| CEREMONIES.md `Task closure`                      | Task closure ceremony | applied | this section                                                               |
 
 ## Resource consumption
 
-| Phase                          | Tokens (approx) | Wall time   |
-| ------------------------------ | --------------- | ----------- |
-| Task start (issue, branch)     | ~10k            | 5 min       |
-| Mandate + plan + compression   | ~15k            | 15 min      |
-| Code work + CHANGES wording    | ~10k            | 10 min      |
-| Manual validation (user-side)  | (n/a)           | ~10 min     |
-| Closure                        | ~25k            | 20 min      |
-| **Total**                      | **~60k**        | **~60 min** |
+| Phase                         | Tokens (approx) | Wall time   |
+| ----------------------------- | --------------- | ----------- |
+| Task start (issue, branch)    | ~10k            | 5 min       |
+| Mandate + plan + compression  | ~15k            | 15 min      |
+| Code work + CHANGES wording   | ~10k            | 10 min      |
+| Manual validation (user-side) | (n/a)           | ~10 min     |
+| Closure                       | ~25k            | 20 min      |
+| **Total**                     | **~60k**        | **~60 min** |
 
 | Counter                | Value                                                            |
 | ---------------------- | ---------------------------------------------------------------- |
