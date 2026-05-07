@@ -1,5 +1,9 @@
 # Changes
 
+## Version 1.0.4:
+
+- CLI: zero-count state badge foreground switched from bright black (`\x1b[90m`) to white (`\x1b[37m`) — bright black was unreadable on terminals whose palette renders it too close to true black.
+
 ## Version 1.0.3:
 
 - README split: programmer-facing API and `make` target reference moved to new `README-LIBRARY.md`. Main README's Library subsection slimmed to a short example plus a link.
