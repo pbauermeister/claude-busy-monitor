@@ -4,6 +4,19 @@
 BLOCK 1: PROJECT CONVENTIONS (manual — user may edit directly)
 ------------------------------------------------------------- -->
 
+## Product intent
+
+`claude-busy-monitor` answers one question per session: **does it need my attention, and what kind?**
+It synthesises Claude Code's raw probe statuses into three user-facing states:
+
+- **BUSY** — work in progress; the user should wait for completion.
+- **ASKING** — Claude is awaiting the user's answer to a question (menu / permission / dialog); answer to unblock it.
+- **IDLE** — nothing in progress; the user may prompt.
+
+The synthesis is many-to-one: several raw statuses MAY collapse into one synthetic state (e.g. `shell → BUSY`).
+When Claude Code introduces a new raw status, map it by this intent — which synthetic state best signals whether the user's attention is required — not by the raw status's internal meaning.
+Mapping mechanics and the raw-status catalogue live in `README-STATE-DETECTION.md` §A4.
+
 ## Project structure
 
 - `architecture/ARCHITECTURE.md` — Living implementation architecture reference
