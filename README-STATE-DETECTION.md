@@ -19,12 +19,13 @@ Two on-disk sources, both written by Claude Code itself:
 
 State classification is one table, no inference:
 
-| `probe.status`  | state    | notes                                  |
-| --------------- | -------- | -------------------------------------- |
-| `"busy"`        | `BUSY`   |                                        |
-| `"idle"`        | `IDLE`   |                                        |
-| `"waiting"`     | `ASKING` | `waitingFor` says why; we don't branch |
-| missing / other | dropped  | requires Claude Code v2.1.119+         |
+| `probe.status`  | state    | notes                                            |
+| --------------- | -------- | ------------------------------------------------ |
+| `"busy"`        | `BUSY`   |                                                  |
+| `"idle"`        | `IDLE`   |                                                  |
+| `"shell"`       | `BUSY`   | shelled-out / local bash; idle-refinement (§A4)  |
+| `"waiting"`     | `ASKING` | `waitingFor` says why; we don't branch           |
+| missing / other | dropped  | requires Claude Code v2.1.119+                   |
 
 Sessions from older Claude Code versions (no `status` field) are silently
 dropped. Migrate them by `/exit` + `claude --resume <sessionId>` — the new
@@ -104,8 +105,24 @@ If a future version starts rewriting the sessions file atomically on
 
 ### A4. Live status (Claude Code v2.1.119+)
 
-`status` ∈ `{"busy", "idle", "waiting"}`; `waitingFor` (string, present
-when status is `"waiting"`) carries the waiting reason. Observed values:
+`status` ∈ `{"busy", "shell", "idle", "waiting"}`; `waitingFor` (string,
+present when status is `"waiting"`) carries the waiting reason.
+
+`"shell"` was added after v2.1.119 (observed on v2.1.175). It is an
+_idle refinement_: the binary computes it only when the base status would
+be `"idle"` and a shell sub-mode is active (shelled-out / local-bash
+context — cf. `local_bash:"shell"`, `CLAUDE_BG_SOURCE??"shell"`):
+
+```js
+Y1 = ... ? "waiting" : ... ? "busy" : "idle"; // base status
+XA = Y1 === "idle" && Hf ? "shell" : Y1; // persisted status
+```
+
+We map `"shell" → BUSY` (not IDLE): although Claude is not running an LLM
+turn, the session looks active to the user — something is going on. A
+shelled-out session that we labelled idle would read as "free to use".
+
+`waitingFor` observed values:
 
 - `approve <ToolName>` — permission modal for a specific tool
   (`approve Bash`, `approve Edit`, …). The exact tool name comes from
@@ -115,13 +132,14 @@ when status is `"waiting"`) carries the waiting reason. Observed values:
 - `dialog open` — local slash-command JSX dialog (e.g. `/hooks` UI).
 - `input needed` — generic fallback when none of the above applies.
 
-Used in `_PROBE_STATUS_MAP` (the three-row table) and the
+Used in `_PROBE_STATUS_MAP` (the four-row table) and the
 `isinstance(status, str)` check in `_load_session_probes`.
 
 **Source of truth in the binary:** Claude Code derives the value with
 
 ```js
 let TY = Cw || tA ? "waiting" : j4 || X_ ? "busy" : "idle";
+TY = TY === "idle" && Hf ? "shell" : TY; // shell refinement (post-v2.1.119)
 let If =
   TY !== "waiting"
     ? void 0
@@ -137,20 +155,22 @@ let If =
 gS$({ status: ML, waitingFor: If }); // persisted on every transition
 ```
 
-and validates loaded probes against `vM1 = ["busy","idle","waiting"]`.
+and validates loaded probes against the status array, now
+`t3f = ["busy","shell","idle","waiting"]` (was `vM1 = [...]` pre-shell).
 Both expressions appear in `strings $(which claude)`.
 
 **Symptom** if renamed or removed: every session falls out of the listing
 (state map returns `None` for the new field name).
 
-**Fix:** re-grep the binary for `vM1=` and the `gS$({status` call site,
-then update `_PROBE_STATUS_MAP` (the three values) and the
+**Fix:** re-grep the binary for the status array (`t3f=` / `vM1=`) and the
+`gS$({status` call site, then update `_PROBE_STATUS_MAP` and the
 `data.get("status")` extraction in `_load_session_probes`.
 
-If Claude Code adds a fourth `status` value, decide whether it maps to
-ASKING, BUSY, or a new ClaudeState — _do not_ silently drop it (the loader
-treats unknown statuses as "skip the session", which would make new-state
-sessions vanish from the listing).
+If Claude Code adds a _further_ `status` value, decide whether it maps to
+ASKING, BUSY, IDLE, or a new ClaudeState — _do not_ silently drop it (the
+loader treats unknown statuses as "skip the session", which would make
+new-state sessions vanish from the listing). `"shell"` was the first such
+addition after v2.1.119; it is mapped to BUSY.
 
 ### B. Token usage
 
@@ -214,7 +234,7 @@ jq -c 'del(.message,.snapshot,.content)' \
   ~/.claude/projects/<encoded-cwd>/<sid>.jsonl | tail -20
 
 # 4. What status values does the current claude binary know about?
-strings "$(which claude)" | grep -E '"(busy|idle|waiting)"|vM1=' | head
+strings "$(which claude)" | grep -E '"(busy|shell|idle|waiting)"|t3f=|vM1=' | head
 
 # 5. Where does claude write the status field?
 strings "$(which claude)" | grep -oE '.{40}gS\$\(\{status[^}]+\}' | head

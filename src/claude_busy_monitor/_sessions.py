@@ -79,6 +79,10 @@ class ClaudeSession:
 _PROBE_STATUS_MAP: dict[str, ClaudeState] = {
     "busy": ClaudeState.BUSY,
     "idle": ClaudeState.IDLE,
+    # "shell": Claude is shelled-out / in a local-bash context. The binary
+    # derives it as an idle refinement, but to the user the session looks
+    # active — something is going on — so it counts as BUSY (see README §A4).
+    "shell": ClaudeState.BUSY,
     "waiting": ClaudeState.ASKING,
 }
 
