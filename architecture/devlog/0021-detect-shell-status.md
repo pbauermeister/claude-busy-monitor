@@ -67,6 +67,7 @@ None. Plan executed as written.
 
 - modified: `src/claude_busy_monitor/_sessions.py` — `"shell": ClaudeState.BUSY` + WHY comment.
 - modified: `README-STATE-DETECTION.md` — state table row; §A4 rewrite; source-of-truth array + shell ternary; recipe 4; repair-playbook wording.
+- modified: `README.md` — §6 corrected: raw `status` set now includes `shell`; "one-row table" → many-to-one synthesis (`shell → busy`). Accuracy fallout from this task's mapping change.
 - modified: `tests/unit/test_state_map.py` — four-key assertion; shell→BUSY test.
 - modified: `tests/unit/test_probe_parsing.py` — `test_probe_parsing_accepts_shell_status_as_busy`.
 - modified: `CHANGES.md` — v1.0.5 entry.
@@ -150,5 +151,5 @@ Live install, two real sessions present (`586654.json` busy, `1349668.json` shel
 | `/clear` events        | 0                                                             |
 | Memory rotation events | 0                                                             |
 | LOC changed            | see `git diff main...HEAD --stat`                            |
-| Files changed          | 6 (`_sessions.py`, README-STATE-DETECTION.md, 2 tests, CHANGES.md, devlog) |
+| Files changed          | 7 (`_sessions.py`, README-STATE-DETECTION.md, README.md, 2 tests, CHANGES.md, devlog) |
 | Commits on branch      | 1 anticipated (single fast-path commit)                      |
