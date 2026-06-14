@@ -39,7 +39,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Opus 4.8
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
@@ -57,7 +57,7 @@ Status-map + its docs/tests only. No change to enumeration, transcript reading, 
 
 - Author: agent
 - Model: Claude Opus 4.8
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -106,11 +106,11 @@ Live install, two real sessions present (`586654.json` busy, `1349668.json` shel
 
 ### 3.8 Retrospective
 
-| #   | Point                                                                                          | Agent | User |
-| --- | ---------------------------------------------------------------------------------------------- | ----- | ---- |
-| 1   | README §A4 had pre-written the exact playbook for "new status value" — diagnosis was fast      | well  |      |
-| 2   | User overruled the IDLE proposal with a clear user-facing rationale (appears active → BUSY)    | well  |      |
-| 3   | `test_version_matches_changes` editable-wheel drift recurred (#17 factoring candidate, hit 2)  | not well |   |
+| #   | Point                                                                                          | Agent    | User       |
+| --- | ---------------------------------------------------------------------------------------------- | -------- | ---------- |
+| 1   | README §A4 had pre-written the exact playbook for "new status value" — diagnosis was fast      | well     | well       |
+| 2   | User overruled the IDLE proposal with a clear user-facing rationale (appears active → BUSY)    | well     | well       |
+| 3   | `test_version_matches_changes` editable-wheel drift recurred (#17 factoring candidate, hit 2)  | not well | ended well |
 
 ### 3.9 Verdict
 
