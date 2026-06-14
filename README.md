@@ -123,10 +123,10 @@ Full API and `make` reference: [README-LIBRARY.md](README-LIBRARY.md).
 
 `claude-busy-monitor` reads two on-disk sources that Claude Code itself writes:
 
-1. `~/.claude/sessions/<pid>.json`: one probe file per live session, with the authoritative `status` field (`busy` / `idle` / `waiting`).
+1. `~/.claude/sessions/<pid>.json`: one probe file per live session, with the authoritative raw `status` field (`busy` / `shell` / `idle` / `waiting`).
 2. `~/.claude/projects/<encoded-cwd>/<sid>.jsonl`: the per-session transcript, used only to total token usage.
 
-State classification is a one-row table; no inference, no heuristics.
+State classification is a fixed lookup that synthesises those raw statuses into the three user-facing states (`busy` / `asking` / `idle`); the mapping is many-to-one — several raw statuses may collapse into one state (e.g. `shell → busy`). No inference, no heuristics.
 Token usage sums the four `usage` categories per assistant entry.
 
 For the full design (assumptions the classifier depends on, diagnostic recipes for when something looks wrong, and the repair playbook), see [README-STATE-DETECTION.md](README-STATE-DETECTION.md).

@@ -1,5 +1,9 @@
 # Changes
 
+## Version 1.0.5:
+
+- Detection: recognise the `"shell"` probe `status` (added by Claude Code after v2.1.119) instead of dropping it. Sessions that shelled out (e.g. via `!`, a local bash command, or Ctrl-Z) were silently invisible to the monitor; they now surface as BUSY — to the user the session looks active. `_PROBE_STATUS_MAP` gains a fourth key; README-STATE-DETECTION.md §A4 documents the new value and its idle-refinement derivation.
+
 ## Version 1.0.4:
 
 - CLI: zero-count state badge foreground switched from bright black (`\x1b[90m`) to white (`\x1b[37m`) — bright black was unreadable on terminals whose palette renders it too close to true black.

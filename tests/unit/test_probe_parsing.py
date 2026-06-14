@@ -73,6 +73,19 @@ def test_probe_parsing_drops_when_pid_is_not_claude(fake_sessions_dir, monkeypat
     assert _load_session_probes() == []
 
 
+def test_probe_parsing_accepts_shell_status_as_busy(fake_sessions_dir, claude_pid_always_valid):
+    # Regression for #21: "shell" probes were dropped, hiding shelled-out
+    # sessions (e.g. pikett-ai-mvp). They must surface as BUSY.
+    _write_probe(
+        fake_sessions_dir,
+        "1.json",
+        {"pid": 123, "cwd": "/home/user/project", "status": "shell"},
+    )
+    probes = _load_session_probes()
+    assert len(probes) == 1
+    assert probes[0].state == ClaudeState.BUSY
+
+
 def test_probe_parsing_accepts_valid_probe(fake_sessions_dir, claude_pid_always_valid):
     _write_probe(
         fake_sessions_dir,
