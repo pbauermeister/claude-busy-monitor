@@ -33,7 +33,7 @@ After #23 only the bg job's probe survives for a backgrounded project, so it is 
 2. Missing hint / no hint falls back to newest; empty or missing project dir returns `None`.
 3. Mocked e2e: parked front-end transcript newer than the bg job's → listed id is the bg job's.
 4. Live install: backgrounded project lists the bg job's id and totals.
-5. README §A3 rewritten; `make test` green; CHANGES.md v1.0.7.
+5. README §A3 rewritten; `make test` green; CHANGES.md v1.0.6 (folded).
 
 ### 1.5 Coverage check
 
@@ -50,7 +50,7 @@ Within charter scope.
 1. Issue #25, branch; `strings` the binary around the sessionId-change handler; compare live probes' `sessionId` with newest transcript (one mismatch: the parked front-end, as expected).
 2. `_sessions.py`: `_find_active_jsonl(cwd, hint)` hint-first; drop `solo` and `cwd_counts` in `get_sessions`.
 3. Tests: rewrite `tests/unit/test_active_jsonl_resolution.py` for the new signature + hint-beats-newer case (`os.utime`); extend the #23 mocked e2e scenario with a future-mtime front-end transcript.
-4. Docs: README-STATE-DETECTION.md §A3 rewrite (hint-first, history, bounded risk), strategy cross-ref, playbook row; CHANGES.md v1.0.7.
+4. Docs: README-STATE-DETECTION.md §A3 rewrite (hint-first, history, bounded risk), strategy cross-ref, playbook row; CHANGES.md v1.0.6 (folded).
 5. `make format`; `make test` + e2e; live verify; devlog; commit; push; PR `Closes #25`. TODO item 7 removed on `main`.
 
 ### 2.2 Scope boundary
@@ -65,7 +65,7 @@ Transcript selection only. No change to probe loading, process identity, status 
 
 ### 3.1 Implementation deviations
 
-None. Plan step 1 was answered by binary analysis instead of a live `/clear` (see § 1.3); the empirical cross-check was the live-probe comparison in § 2.1 step 1.
+Versioning: user decision at review — no separate 1.0.7; the entry is folded into the unreleased 1.0.6 (CHANGES.md), since the task split is not relevant to users. Plan step 1 was answered by binary analysis instead of a live `/clear` (see § 1.3); the empirical cross-check was the live-probe comparison in § 2.1 step 1.
 
 ### 3.2 File inventory
 
@@ -73,7 +73,7 @@ None. Plan step 1 was answered by binary analysis instead of a live `/clear` (se
 - modified: `tests/unit/test_active_jsonl_resolution.py` — rewritten for the new signature; `…_hint_beats_newer_unrelated_transcript`, `…_missing_hint_falls_back_to_newest`, `…_empty_project_dir_returns_none`.
 - modified: `tests/e2e/test_classifier_observes_mocked_sessions.py` — #23 scenario now makes the front-end transcript newest.
 - modified: `README-STATE-DETECTION.md` — §A3 rewrite; strategy cross-ref; playbook row.
-- modified: `CHANGES.md` — v1.0.7 entry.
+- modified: `CHANGES.md` — v1.0.6 (folded) entry.
 - new: `architecture/devlog/0025-transcript-selection-hint-first.md` — this devlog.
 - modified on `main`: `TODO.md` — item 7 removed.
 
@@ -86,7 +86,7 @@ for f in ~/.claude/sessions/*.json; do pid=$(jq .pid "$f"); [ -d /proc/$pid ] ||
   echo "$pid ${sid:0:8} $(ls -t "$d"/*.jsonl | head -1 | xargs basename | cut -c1-8)"; done
 make test                                   # 32 unit + 18 smoke green
 uv run pytest tests/e2e                     # 3 passed, 1 skipped
-uv sync --reinstall-package claude-busy-monitor --extra dev   # __version__ → 1.0.7
+uv sync --reinstall-package claude-busy-monitor --extra dev   # __version__ → 1.0.6
 uv run python -c "from claude_busy_monitor import get_sessions; \
   print([(s.name,s.id[:8],str(s.state),s.stats) for s in get_sessions()])"   # bg job id + totals
 ```
@@ -105,7 +105,7 @@ Within charter scope.
 - AC #1–#2: ✓ — unit tests.
 - AC #3: ✓ — mocked e2e.
 - AC #4: ✓ — live: `('…', 'e7506603', 'idle', TokenStats(output=2042716, input=503844552))`, previously id `c1e78da9`.
-- AC #5: ✓ — §A3 rewritten; `make test` green; v1.0.7.
+- AC #5: ✓ — §A3 rewritten; `make test` green; v1.0.6 (folded).
 
 ### 3.7 Manual validation
 
