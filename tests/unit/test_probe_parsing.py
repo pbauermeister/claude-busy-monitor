@@ -86,6 +86,41 @@ def test_probe_parsing_accepts_shell_status_as_busy(fake_sessions_dir, claude_pi
     assert probes[0].state == ClaudeState.BUSY
 
 
+def test_probe_parsing_drops_parked_front_end_probe(fake_sessions_dir, claude_pid_always_valid):
+    # Regression for #23: an interactive session moved to the background
+    # keeps a probe with `parkedJobId` set and a status frozen at the park
+    # moment (here "busy"). The bg job's probe is authoritative; the parked
+    # one must not surface.
+    _write_probe(
+        fake_sessions_dir,
+        "1.json",
+        {
+            "pid": 123,
+            "cwd": "/home/user/project",
+            "sessionId": "abc-123",
+            "kind": "interactive",
+            "status": "busy",
+            "parkedJobId": "e7506603",
+        },
+    )
+    assert _load_session_probes() == []
+
+
+def test_probe_parsing_keeps_probe_when_parked_job_id_is_null(
+    fake_sessions_dir, claude_pid_always_valid
+):
+    # Claude Code writes `parkedJobId: null`/absent once a session is
+    # un-parked; only a string value marks a parked front-end.
+    _write_probe(
+        fake_sessions_dir,
+        "1.json",
+        {"pid": 123, "cwd": "/x", "status": "idle", "parkedJobId": None},
+    )
+    probes = _load_session_probes()
+    assert len(probes) == 1
+    assert probes[0].state == ClaudeState.IDLE
+
+
 def test_probe_parsing_accepts_valid_probe(fake_sessions_dir, claude_pid_always_valid):
     _write_probe(
         fake_sessions_dir,

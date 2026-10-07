@@ -85,3 +85,42 @@ def test_classifier_returns_empty_when_sessions_dir_is_empty(isolated_home):
         ClaudeState.ASKING: 0,
         ClaudeState.IDLE: 0,
     }
+
+
+def test_classifier_reports_backgrounded_session_from_its_bg_probe(isolated_home):
+    # Regression for #23: a session moved to the background leaves two probes
+    # for one cwd — the parked front-end (status frozen at "busy") and the bg
+    # job (live status). Only the bg job's state must surface, once.
+    sessions_dir = isolated_home / ".claude" / "sessions"
+    projects_dir = isolated_home / ".claude" / "projects"
+    cwd = "/tmp/proj-parked"
+
+    (sessions_dir / "101.json").write_text(
+        json.dumps(
+            {
+                "pid": 101,
+                "cwd": cwd,
+                "sessionId": "sid-front",
+                "kind": "interactive",
+                "status": "busy",
+                "parkedJobId": "job-1",
+            }
+        )
+    )
+    (sessions_dir / "102.json").write_text(
+        json.dumps(
+            {
+                "pid": 102,
+                "cwd": cwd,
+                "sessionId": "sid-bg",
+                "kind": "bg",
+                "jobId": "job-1",
+                "status": "idle",
+            }
+        )
+    )
+    for sid in ("sid-front", "sid-bg"):
+        _write_transcript(projects_dir, cwd, sid, [])
+
+    sessions = [s for s in get_sessions() if s.path == cwd]
+    assert [(s.id, s.state) for s in sessions] == [("sid-bg", ClaudeState.IDLE)]
