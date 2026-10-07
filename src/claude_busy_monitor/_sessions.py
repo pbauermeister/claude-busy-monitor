@@ -127,22 +127,22 @@ def _newest_jsonl(project_dir: Path) -> Path | None:
     return best
 
 
-def _find_active_jsonl(cwd: str, session_id_hint: str | None, solo: bool) -> Path | None:
+def _find_active_jsonl(cwd: str, session_id_hint: str | None) -> Path | None:
     """Resolve a probe's live JSONL transcript (used for token stats only).
 
-    Path encoding and the solo-vs-multi disambiguation: README §A2, §A3.
+    Path encoding and the hint-first rule: README §A2, §A3.
     """
     encoded = cwd.replace("/", "-")  # README §A2 if encoding ever changes
     project_dir = PROJECTS_DIR / encoded
     if not project_dir.is_dir():
         return None
-    if solo:
-        return _newest_jsonl(project_dir)
     if session_id_hint:
         candidate = project_dir / f"{session_id_hint}.jsonl"
         if candidate.is_file():
             return candidate
-    return None
+    # Hint absent or not yet materialised (fresh session before its first
+    # write): newest transcript by mtime is the best available guess.
+    return _newest_jsonl(project_dir)
 
 
 def _compute_token_stats(path: Path | None) -> TokenStats | None:
@@ -241,14 +241,9 @@ def get_sessions() -> list[ClaudeSession]:
     if not probes:
         return []
 
-    cwd_counts: dict[str, int] = {}
-    for p in probes:
-        cwd_counts[p.cwd] = cwd_counts.get(p.cwd, 0) + 1
-
     sessions: list[ClaudeSession] = []
     for p in probes:
-        solo = cwd_counts[p.cwd] == 1
-        p.jsonl = _find_active_jsonl(p.cwd, p.session_id_hint, solo)
+        p.jsonl = _find_active_jsonl(p.cwd, p.session_id_hint)
         sid = p.jsonl.stem if p.jsonl is not None else (p.session_id_hint or "")
         sessions.append(
             ClaudeSession(

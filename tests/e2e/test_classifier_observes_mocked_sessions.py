@@ -11,6 +11,8 @@ behind the `CLAUDE_E2E_REAL=1` env var.
 """
 
 import json
+import os
+import time
 
 import pytest
 
@@ -121,6 +123,11 @@ def test_classifier_reports_backgrounded_session_from_its_bg_probe(isolated_home
     )
     for sid in ("sid-front", "sid-bg"):
         _write_transcript(projects_dir, cwd, sid, [])
+    # #25: the parked front-end touches its transcript hourly; make it the
+    # newest file so a newest-mtime rule would pick it over the bg job's.
+    front = projects_dir / cwd.replace("/", "-") / "sid-front.jsonl"
+    future = time.time() + 3600
+    os.utime(front, (future, future))
 
     sessions = [s for s in get_sessions() if s.path == cwd]
     assert [(s.id, s.state) for s in sessions] == [("sid-bg", ClaudeState.IDLE)]

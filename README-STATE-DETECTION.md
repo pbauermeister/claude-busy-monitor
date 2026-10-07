@@ -14,7 +14,7 @@ Two on-disk sources, both written by Claude Code itself:
    Enumeration source AND authoritative state. See [A1](#a1-per-pid-session-file)
    and [A4](#a4-live-status-claude-code-v21119).
 2. `~/.claude/projects/<encoded-cwd>/<sid>.jsonl` — per-session transcript.
-   Used only to total token usage. See [A2](#a2-transcript-path) and
+   Used only to total token usage. See [A2](#a2-transcript-path), [A3](#a3-transcript-selection-hint-first) and
    [B](#b-token-usage).
 
 State classification is one table, no inference:
@@ -95,28 +95,26 @@ path segments), update that line.
 **Symptom** if it drifts: token stats report `None` for cwds with unusual
 characters; state classification is unaffected (it doesn't read the JSONL).
 
-### A3. /clear sessionId rotation
+### A3. Transcript selection (hint-first)
 
-`/clear` allocates a new sessionId and starts a fresh JSONL but does not
-necessarily rewrite `~/.claude/sessions/<pid>.json` immediately. The
-probe's `sessionId` can therefore lag behind the live id.
+`_find_active_jsonl` resolves a probe's transcript as
+`<project-dir>/<probe.sessionId>.jsonl` when that file exists, and only
+otherwise falls back to the newest `*.jsonl` by mtime (fresh session
+whose transcript is not written yet, or a probe without `sessionId`).
 
-Used in `_find_active_jsonl`:
+History: before #25 a probe that was solo for its cwd always took the
+newest file, to cover a `/clear` whose new sessionId had not yet reached
+the probe. On v2.1.289 the probe rewrite is a session-id-change
+subscription registered right after the session registers
+(`dd((D,B)=>{… fn({sessionId:D,parkedJobId:void 0,updatedAt:Date.now()},n)`
+in the binary), so the lag no longer exists; and newest-mtime picked the
+wrong file for backgrounded sessions, whose parked front-end touches its
+own transcript hourly (§A5).
 
-- **Solo probe for the cwd** → fall back to the newest `*.jsonl` in the
-  project directory. Robust against the lag.
-- **Multiple probes share the cwd** → each uses its own `sessionId` hint;
-  do _not_ fall back to newest, which would collide them on the same file.
-
-If a future version starts rewriting the sessions file atomically on
-`/clear`, the newest-jsonl fallback becomes redundant but harmless.
-
-Known gap (#23): for a backgrounded session (§A5) the parked front-end's
-transcript stays in the project directory and the parked process touches
-it periodically (observed hourly, no new records). Once the background
-job has been quiet for longer than that, the newest-jsonl fallback picks
-the parked transcript: the listed `id` and token totals then come from
-the wrong file. State is unaffected (it never reads the JSONL).
+Should the lag reappear, the cost is bounded: `status` is persisted on
+every transition (§A4), so at the latest the first turn after `/clear`
+rewrites the probe with the current sessionId. Until then the token
+totals are those of the previous transcript; state is unaffected.
 
 ### A4. Live status (Claude Code v2.1.119+)
 
@@ -307,16 +305,16 @@ the drift.
 
 ## Repair playbook
 
-| Symptom                                         | Likely assumption     | Fix                                                       |
-| ----------------------------------------------- | --------------------- | --------------------------------------------------------- |
-| `get_sessions()` returns `[]` on a live install | C (or A1 missing)     | Check `comm`, then `ls ~/.claude/sessions/`               |
-| All sessions reported BUSY                      | A4 status enum        | Run recipe 4; update `_PROBE_STATUS_MAP`                  |
-| One session has `state` but no `stats`          | A2 or A3              | Confirm transcript path encoding; check /clear rotation   |
-| Token totals look 100× too low                  | B `input_tokens` only | Reconfirm cache fields are still summed                   |
-| Sessions in known-old claude versions vanish    | expected (A4)         | Migrate: `/exit` + `claude --resume <sessionId>`          |
-| New `status` value appears, sessions vanish     | A4                    | Add it to `_PROBE_STATUS_MAP` (decide which ClaudeState)  |
-| Backgrounded project stuck BUSY while idle      | A5                    | Recipe 6: front-end probe has `parkedJobId`; realign skip |
-| Background job (`kind: "bg"`) missing from list | C                     | Recipe 6: comm is a version string; realign exe path test |
+| Symptom                                         | Likely assumption     | Fix                                                           |
+| ----------------------------------------------- | --------------------- | ------------------------------------------------------------- |
+| `get_sessions()` returns `[]` on a live install | C (or A1 missing)     | Check `comm`, then `ls ~/.claude/sessions/`                   |
+| All sessions reported BUSY                      | A4 status enum        | Run recipe 4; update `_PROBE_STATUS_MAP`                      |
+| One session has `state` but no `stats`          | A2 or A3              | Confirm transcript path encoding; `<sessionId>.jsonl` exists? |
+| Token totals look 100× too low                  | B `input_tokens` only | Reconfirm cache fields are still summed                       |
+| Sessions in known-old claude versions vanish    | expected (A4)         | Migrate: `/exit` + `claude --resume <sessionId>`              |
+| New `status` value appears, sessions vanish     | A4                    | Add it to `_PROBE_STATUS_MAP` (decide which ClaudeState)      |
+| Backgrounded project stuck BUSY while idle      | A5                    | Recipe 6: front-end probe has `parkedJobId`; realign skip     |
+| Background job (`kind: "bg"`) missing from list | C                     | Recipe 6: comm is a version string; realign exe path test     |
 
 ## Why this design
 
