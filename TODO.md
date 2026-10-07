@@ -3,6 +3,7 @@
 Recognized tasks are recorded as GitHub issues and managed in detail in corresponding `<folder>/devlog/NNNN-*.md` files.
 
 This file captures items as they arise during work, so nothing is forgotten without diverting the current discussion or reasoning. Items collected here can later be specified as tasks, grouped together, or discarded. If a TODO item becomes significant effort, it must be turned into a standard task (GH ticket, PR, devlog).
+Each item has its own `### n.` block; numbers are allocated sequentially and never reset or reused, even after an item is removed.
 
 ## Won't
 
@@ -37,10 +38,23 @@ Hand-rolled in #9 + #11: `scripts/publish-preflight.sh`, `scripts/publish-tag.sh
 
 Gradually use GH tickets instead of TODO.md.
 
-Later features include:
+### 3. Extract classification documentation from code comments
 
-- Extract classification documentation from Python code comment sections to a separate README.
-- Clarify that the classification is based on empirical findings, Claude Code version-dependant.
-- Currently works for Linux. OSX support to be envisaged.
-- Currently works with Claude Code v2.1.119. Version compatibility to be discussed.
-- [impl] Backgrounded sessions (#23): solo newest-jsonl fallback (README-STATE-DETECTION.md §A3) may pick the parked front-end transcript (touched hourly) — wrong `id`/token totals, state correct. Decide hint-first selection vs. /clear-lag rationale.
+Extract classification documentation from Python code comment sections to a separate README.
+
+### 4. Clarify empirical basis of the classification
+
+Clarify that the classification is based on empirical findings, Claude Code version-dependant.
+
+### 5. OSX support
+
+Currently works for Linux. OSX support to be envisaged.
+
+### 6. Claude Code version compatibility
+
+Currently works with Claude Code v2.1.119. Version compatibility to be discussed.
+
+### 7. Backgrounded sessions: transcript selection (#23)
+
+[impl] Solo newest-jsonl fallback (README-STATE-DETECTION.md §A3) may pick the parked front-end transcript (touched hourly) — wrong `id`/token totals, state correct. Decide hint-first selection vs. /clear-lag rationale.
+Plan: `architecture/devlog/0023-detect-backgrounded-sessions.md`, appendix "Follow-up plan".
