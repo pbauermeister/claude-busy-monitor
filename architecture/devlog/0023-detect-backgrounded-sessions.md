@@ -119,12 +119,14 @@ Live install, affected project with both probes present (front-end busy + parked
 
 ### 3.8 Retrospective
 
-| #   | Point                                                                                               | Agent    | User     |
-| --- | --------------------------------------------------------------------------------------------------- | -------- | -------- |
-| 1   | Diagnosis from probe files + `/proc` + binary strings took one pass; README recipes were adequate   | well     | well     |
-| 2   | Two independent defects masked each other (bg drop made the stale probe solo); worth a playbook row | surprise | surptise |
-| 3   | Smoke test spawns real processes instead of mocking `/proc` reads — exercises the kernel path       | well     | well     |
-| 4   | Transcript-selection gap found only at live verification; deferred, not fixed                       | not well |          |
+| #   | Point                                                                                               | Agent    | User       |
+| --- | --------------------------------------------------------------------------------------------------- | -------- | ---------- |
+| 1   | Diagnosis from probe files + `/proc` + binary strings took one pass; README recipes were adequate   | well     | well       |
+| 2   | Two independent defects masked each other (bg drop made the stale probe solo); worth a playbook row | surprise | surptise   |
+| 3   | Smoke test spawns real processes instead of mocking `/proc` reads — exercises the kernel path       | well     | well       |
+| 4   | Transcript-selection gap found only at live verification; deferred, not fixed                       | not well | ended well |
+
+User note: #4 ended well because (1) it was detected and explained, and (2) planned as a follow-op.
 
 ### 3.9 Verdict
 
