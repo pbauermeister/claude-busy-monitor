@@ -43,3 +43,4 @@ Later features include:
 - Clarify that the classification is based on empirical findings, Claude Code version-dependant.
 - Currently works for Linux. OSX support to be envisaged.
 - Currently works with Claude Code v2.1.119. Version compatibility to be discussed.
+- [impl] Backgrounded sessions (#23): solo newest-jsonl fallback (README-STATE-DETECTION.md §A3) may pick the parked front-end transcript (touched hourly) — wrong `id`/token totals, state correct. Decide hint-first selection vs. /clear-lag rationale.
