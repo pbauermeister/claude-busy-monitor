@@ -1,5 +1,9 @@
 # Changes
 
+## Version 1.0.7:
+
+- Transcript selection is hint-first: a probe's own `<sessionId>.jsonl` is used when it exists; newest-by-mtime is only the fallback. Fixes the id and token totals of backgrounded sessions, which were taken from the parked front-end's transcript (touched hourly) once the background job had been quiet for an hour. The `/clear` lag that motivated newest-first is gone on Claude Code 2.1.289 (probe rewritten on session-id change). README-STATE-DETECTION.md §A3 rewritten.
+
 ## Version 1.0.6:
 
 - Detection: sessions moved to the background (Claude Code v2.1.289, `claude bg-pty-host`) were reported BUSY while idle. The parked interactive front-end keeps a probe with `parkedJobId` set and a `status` frozen at the park moment; such probes are now skipped in favour of the background job's own probe. README-STATE-DETECTION.md gains §A5.
