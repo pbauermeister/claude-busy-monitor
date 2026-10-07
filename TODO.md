@@ -53,8 +53,3 @@ Currently works for Linux. OSX support to be envisaged.
 ### 6. Claude Code version compatibility
 
 Currently works with Claude Code v2.1.119. Version compatibility to be discussed.
-
-### 7. Backgrounded sessions: transcript selection (#23)
-
-[impl] Solo newest-jsonl fallback (README-STATE-DETECTION.md §A3) may pick the parked front-end transcript (touched hourly) — wrong `id`/token totals, state correct. Decide hint-first selection vs. /clear-lag rationale.
-Plan: `architecture/devlog/0023-detect-backgrounded-sessions.md`, appendix "Follow-up plan".
