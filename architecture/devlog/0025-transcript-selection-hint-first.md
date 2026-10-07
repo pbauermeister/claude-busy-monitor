@@ -9,7 +9,7 @@
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -43,7 +43,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
@@ -61,7 +61,7 @@ Transcript selection only. No change to probe loading, process identity, status 
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -115,9 +115,9 @@ Live install, backgrounded project with parked front-end (transcript mtime newer
 
 | #   | Point                                                                                         | Agent | User |
 | --- | --------------------------------------------------------------------------------------------- | ----- | ---- |
-| 1   | Plan appendix from #23 made this a 10-minute execution; the fork (2a/2b) resolved by one grep | well  |      |
-| 2   | `/clear` lag answered from the binary rather than a live TUI test (memory: avoid pexpect e2e) | well  |      |
-| 3   | Net code shrank (solo/multi branch removed); fewer failure modes, in the README's own spirit  | well  |      |
+| 1   | Plan appendix from #23 made this a 10-minute execution; the fork (2a/2b) resolved by one grep | well  | well |
+| 2   | `/clear` lag answered from the binary rather than a live TUI test (memory: avoid pexpect e2e) | well  | well |
+| 3   | Net code shrank (solo/multi branch removed); fewer failure modes, in the README's own spirit  | well  | well |
 
 ### 3.9 Verdict
 
