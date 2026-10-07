@@ -9,7 +9,7 @@
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 1.1 Context
 
@@ -47,7 +47,7 @@ Within charter scope.
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 2.1 Steps
 
@@ -65,7 +65,7 @@ Probe loader + process identity, their docs/tests. No change to the status map, 
 
 - Author: agent
 - Model: Claude Fable 5.1
-- Review: pending
+- Review: user
 
 ### 3.1 Implementation deviations
 
@@ -119,12 +119,12 @@ Live install, affected project with both probes present (front-end busy + parked
 
 ### 3.8 Retrospective
 
-| #   | Point                                                                                               | Agent    | User |
-| --- | --------------------------------------------------------------------------------------------------- | -------- | ---- |
-| 1   | Diagnosis from probe files + `/proc` + binary strings took one pass; README recipes were adequate   | well     |      |
-| 2   | Two independent defects masked each other (bg drop made the stale probe solo); worth a playbook row | surprise |      |
-| 3   | Smoke test spawns real processes instead of mocking `/proc` reads — exercises the kernel path       | well     |      |
-| 4   | Transcript-selection gap found only at live verification; deferred, not fixed                       | not well |      |
+| #   | Point                                                                                               | Agent    | User     |
+| --- | --------------------------------------------------------------------------------------------------- | -------- | -------- |
+| 1   | Diagnosis from probe files + `/proc` + binary strings took one pass; README recipes were adequate   | well     | well     |
+| 2   | Two independent defects masked each other (bg drop made the stale probe solo); worth a playbook row | surprise | surptise |
+| 3   | Smoke test spawns real processes instead of mocking `/proc` reads — exercises the kernel path       | well     | well     |
+| 4   | Transcript-selection gap found only at live verification; deferred, not fixed                       | not well |          |
 
 ### 3.9 Verdict
 
@@ -172,3 +172,29 @@ Live install, affected project with both probes present (front-end busy + parked
 | LOC changed            | see `git diff main...HEAD --stat`       |
 | Files changed          | 8 on branch (+ TODO.md on `main`)       |
 | Commits on branch      | 1 anticipated (single fast-path commit) |
+
+## Follow-up plan: transcript selection for backgrounded sessions
+
+Fix for § 3.9 reservation 1 / TODO.md entry. Separate fast-path task, new GH issue.
+
+- Goal
+  - `id` and token totals come from the background job's transcript.
+  - `/clear` robustness (README §A3) preserved or shown obsolete.
+- Step 1 — verify `/clear` lag on current Claude Code (2.1.289)
+  - Evidence for "no lag": binary has a session-id-change handler writing `fn({sessionId:D,parkedJobId:void 0,updatedAt:Date.now()},n)`.
+  - Check: live session, `/clear`, then immediately compare `jq .sessionId ~/.claude/sessions/<pid>.json` with the newest `*.jsonl` stem.
+  - Repeat twice; record in the new devlog § 3.7.
+- Step 2a — no lag: hint-first selection
+  - `_find_active_jsonl`: if `<hint>.jsonl` exists → use it; else newest by mtime; drop the `solo` parameter and `cwd_counts`.
+  - README §A3 rewritten: fallback is for a missing hint only; §A3 known-gap paragraph removed.
+- Step 2b — lag still present: hint-first for `kind: "bg"` only
+  - Rationale: a bg job's `sessionId` is fixed by `--session-id` at spawn and cannot lag.
+  - `_SessionProbe` gains `kind`; `_find_active_jsonl` prefers the hint when `kind == "bg"`, else current rule.
+  - README §A3 documents the kind split; no transcript-content proxies (README § Why this design).
+- Tests
+  - `tests/unit/test_active_jsonl_resolution.py`: hinted file older than an unrelated newer file → hinted chosen; hint missing → newest.
+  - `tests/e2e/test_classifier_observes_mocked_sessions.py`: extend the #23 scenario — `os.utime` the front-end transcript newer than the bg one; assert `id == "sid-bg"`. Fails on current code.
+- Docs / release
+  - CHANGES.md v1.0.7; TODO.md entry removed on `main`.
+- Size
+  - ≈ 10 LOC production, 2 tests; one commit; fast-path eligible.
