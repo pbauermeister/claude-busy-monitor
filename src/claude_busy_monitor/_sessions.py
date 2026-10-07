@@ -97,13 +97,18 @@ class _SessionProbe:
 
 
 def _is_process_claude(pid: int) -> bool:
-    # comm literal "claude" is the binary name. README §C if Claude Code
-    # is ever renamed (every session would silently disappear from the listing).
+    # Two launch forms (README §C). Via the `claude` launcher, comm is
+    # literally "claude". Background jobs (`claude bg-pty-host`) exec the
+    # versioned binary by full path, so comm is the version string (e.g.
+    # "2.1.289") and only the exe path (.../claude/versions/<ver>) tells.
     try:
-        comm = Path(f"/proc/{pid}/comm").read_text().strip()
-        if comm != "claude":
+        if os.stat(f"/proc/{pid}").st_uid != os.getuid():
             return False
-        return os.stat(f"/proc/{pid}").st_uid == os.getuid()
+        comm = Path(f"/proc/{pid}/comm").read_text().strip()
+        if comm == "claude":
+            return True
+        exe = Path(os.readlink(f"/proc/{pid}/exe"))
+        return exe.parent.name == "versions" and exe.parent.parent.name == "claude"
     except (FileNotFoundError, PermissionError, ProcessLookupError, OSError):
         return False
 
@@ -181,6 +186,8 @@ def _load_session_probes() -> list[_SessionProbe]:
     Probe file shape: README §A1. Status field semantics: README §A4.
     Probes without a recognized `status` field (older Claude Code) are
     dropped — migrate them by exiting and `claude --resume <sessionId>`.
+    Parked probes (front-end of a backgrounded session) are dropped in
+    favour of the background job's own probe (README §A5).
     """
     if not SESSIONS_DIR.is_dir():
         return []
@@ -198,6 +205,11 @@ def _load_session_probes() -> list[_SessionProbe]:
             continue
         state = _PROBE_STATUS_MAP.get(status) if isinstance(status, str) else None
         if state is None:
+            continue
+        if isinstance(data.get("parkedJobId"), str):
+            # Interactive front-end whose conversation moved to a background
+            # job: its status froze at the park moment. The bg job's own
+            # probe (kind "bg") is the authoritative one (README §A5).
             continue
         if not _is_process_claude(pid):
             continue

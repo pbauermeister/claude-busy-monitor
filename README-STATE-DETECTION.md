@@ -19,13 +19,18 @@ Two on-disk sources, both written by Claude Code itself:
 
 State classification is one table, no inference:
 
-| `probe.status`  | state    | notes                                            |
-| --------------- | -------- | ------------------------------------------------ |
-| `"busy"`        | `BUSY`   |                                                  |
-| `"idle"`        | `IDLE`   |                                                  |
-| `"shell"`       | `BUSY`   | shelled-out / local bash; idle-refinement (§A4)  |
-| `"waiting"`     | `ASKING` | `waitingFor` says why; we don't branch           |
-| missing / other | dropped  | requires Claude Code v2.1.119+                   |
+| `probe.status`  | state    | notes                                           |
+| --------------- | -------- | ----------------------------------------------- |
+| `"busy"`        | `BUSY`   |                                                 |
+| `"idle"`        | `IDLE`   |                                                 |
+| `"shell"`       | `BUSY`   | shelled-out / local bash; idle-refinement (§A4) |
+| `"waiting"`     | `ASKING` | `waitingFor` says why; we don't branch          |
+| missing / other | dropped  | requires Claude Code v2.1.119+                  |
+
+A probe carrying a string `parkedJobId` is dropped regardless of its
+`status`: it belongs to the parked front-end of a backgrounded session,
+whose `status` is frozen; the background job's own probe (`kind: "bg"`)
+is the authoritative one. See [A5](#a5-backgrounded-sessions-claude-code-v21289).
 
 Sessions from older Claude Code versions (no `status` field) are silently
 dropped. Migrate them by `/exit` + `claude --resume <sessionId>` — the new
@@ -69,12 +74,15 @@ Required fields (v2.1.119, observed):
   "status": "waiting",
   "waitingFor": "approve Bash",
   "updatedAt": 1777176263534,
+  "statusUpdatedAt": 1777176263534, // v2.1.289: when `status` last changed
+  "parkedJobId": "e7506603", // v2.1.289: present only on a parked front-end (§A5)
 }
 ```
 
 The hard requirement is mapping live pid → cwd → sessionId → status. If
 the filename pattern or that quadruple of fields moves, rewrite
-`_load_session_probes`.
+`_load_session_probes`. `kind` ∈ `{"interactive","bg","daemon","daemon-worker"}`
+(binary validation array); only `interactive` and `bg` are seen in practice.
 
 ### A2. Transcript path
 
@@ -102,6 +110,13 @@ Used in `_find_active_jsonl`:
 
 If a future version starts rewriting the sessions file atomically on
 `/clear`, the newest-jsonl fallback becomes redundant but harmless.
+
+Known gap (#23): for a backgrounded session (§A5) the parked front-end's
+transcript stays in the project directory and the parked process touches
+it periodically (observed hourly, no new records). Once the background
+job has been quiet for longer than that, the newest-jsonl fallback picks
+the parked transcript: the listed `id` and token totals then come from
+the wrong file. State is unaffected (it never reads the JSONL).
 
 ### A4. Live status (Claude Code v2.1.119+)
 
@@ -172,6 +187,35 @@ loader treats unknown statuses as "skip the session", which would make
 new-state sessions vanish from the listing). `"shell"` was the first such
 addition after v2.1.119; it is mapped to BUSY.
 
+### A5. Backgrounded sessions (Claude Code v2.1.289)
+
+An interactive session can be moved to the background. Claude Code then:
+
+1. Spawns `claude bg-pty-host … -- <versioned-binary> --session-id <new>
+--fork-session --resume <old transcript>`: a new process with its own
+   probe file, `kind: "bg"`, `jobId: <id>`, and a live `status`.
+2. Marks the front-end's probe with `parkedJobId: <same id>` and stops
+   updating its `status`: it stays frozen at the last value before the
+   park, typically `busy` since parking happens mid-turn.
+3. Appends a `continued-in` record to the front-end's transcript.
+
+Used in `_load_session_probes`: a probe whose `parkedJobId` is a string
+is skipped. Claude Code applies the same rule in its own liveness logic:
+
+```js
+if (r.kind === "interactive" && r.parkedJobId !== void 0) continue;
+```
+
+Un-parking rewrites the probe with `parkedJobId: undefined` (setter
+`Vkn`), so a `null`/absent field means "not parked".
+
+**Symptom** if the field is renamed: a backgrounded project shows one
+session stuck BUSY (the frozen front-end) even when the background job
+is idle — the original #23 report.
+
+**Fix:** re-grep the binary for the `parkedJobId` setters (`_8r`/`Vkn`)
+and realign the field name in `_load_session_probes`.
+
 ### B. Token usage
 
 `assistant.message.usage` in the JSONL carries:
@@ -204,18 +248,28 @@ all there, the rollup is just a UX choice.
 
 ### C. Process identity
 
-`/proc/<pid>/comm` is literally the 7-byte string `"claude"`. Used in
-`_is_process_claude` to filter dead pids and non-claude processes (the
-sessions directory is per-user but the loader still validates each pid).
+Used in `_is_process_claude` to filter dead pids and non-claude processes
+(the sessions directory is per-user but the loader still validates each
+pid). Two launch forms are accepted:
 
-**Symptom** if the binary is renamed (e.g. to `claude-code`):
-`get_sessions()` returns `[]`. The probe files exist but every pid fails
-the comm check.
+| launch form                              | `/proc/<pid>/comm`      | `/proc/<pid>/exe`                      |
+| ---------------------------------------- | ----------------------- | -------------------------------------- |
+| `claude` launcher (interactive sessions) | `claude`                | `~/.local/share/claude/versions/<ver>` |
+| versioned binary by full path (bg jobs)  | `<ver>`, e.g. `2.1.289` | same                                   |
 
-**Fix:** update the literal in `_is_process_claude`.
+Rule: comm `"claude"`, or exe whose parent directories end in
+`claude/versions/`. Before #23 only the comm check existed, so every
+background job (§A5) was dropped.
+
+**Symptom** if the binary is renamed (e.g. to `claude-code`) or the
+install layout moves: `get_sessions()` returns `[]`, or background jobs
+vanish. The probe files exist but every pid fails the identity check.
+
+**Fix:** realign the literal / path test in `_is_process_claude`
+(recipe 6 prints what the kernel reports).
 
 This is Linux-only (`/proc`). Porting to macOS/BSD requires replacing
-the comm check with `ps -o comm=` or equivalent.
+the comm/exe checks with `ps -o comm=` or equivalent.
 
 ## Diagnostic recipes
 
@@ -238,6 +292,13 @@ strings "$(which claude)" | grep -E '"(busy|shell|idle|waiting)"|t3f=|vM1=' | he
 
 # 5. Where does claude write the status field?
 strings "$(which claude)" | grep -oE '.{40}gS\$\(\{status[^}]+\}' | head
+
+# 6. Process identity + background bookkeeping per probe (§A5, §C)
+for f in ~/.claude/sessions/*.json; do
+  pid=$(jq .pid "$f"); [ -d /proc/$pid ] || continue
+  echo "$pid $(cat /proc/$pid/comm) $(readlink /proc/$pid/exe)" \
+       "$(jq -r '[.kind, .status, (.parkedJobId // "-"), (.jobId // "-")] | @tsv' "$f")"
+done
 ```
 
 Recipes 4 and 5 are the binary-side check for [A4](#a4-live-status-claude-code-v21119).
@@ -246,14 +307,16 @@ the drift.
 
 ## Repair playbook
 
-| Symptom                                         | Likely assumption     | Fix                                                      |
-| ----------------------------------------------- | --------------------- | -------------------------------------------------------- |
-| `get_sessions()` returns `[]` on a live install | C (or A1 missing)     | Check `comm`, then `ls ~/.claude/sessions/`              |
-| All sessions reported BUSY                      | A4 status enum        | Run recipe 4; update `_PROBE_STATUS_MAP`                 |
-| One session has `state` but no `stats`          | A2 or A3              | Confirm transcript path encoding; check /clear rotation  |
-| Token totals look 100× too low                  | B `input_tokens` only | Reconfirm cache fields are still summed                  |
-| Sessions in known-old claude versions vanish    | expected (A4)         | Migrate: `/exit` + `claude --resume <sessionId>`         |
-| New `status` value appears, sessions vanish     | A4                    | Add it to `_PROBE_STATUS_MAP` (decide which ClaudeState) |
+| Symptom                                         | Likely assumption     | Fix                                                       |
+| ----------------------------------------------- | --------------------- | --------------------------------------------------------- |
+| `get_sessions()` returns `[]` on a live install | C (or A1 missing)     | Check `comm`, then `ls ~/.claude/sessions/`               |
+| All sessions reported BUSY                      | A4 status enum        | Run recipe 4; update `_PROBE_STATUS_MAP`                  |
+| One session has `state` but no `stats`          | A2 or A3              | Confirm transcript path encoding; check /clear rotation   |
+| Token totals look 100× too low                  | B `input_tokens` only | Reconfirm cache fields are still summed                   |
+| Sessions in known-old claude versions vanish    | expected (A4)         | Migrate: `/exit` + `claude --resume <sessionId>`          |
+| New `status` value appears, sessions vanish     | A4                    | Add it to `_PROBE_STATUS_MAP` (decide which ClaudeState)  |
+| Backgrounded project stuck BUSY while idle      | A5                    | Recipe 6: front-end probe has `parkedJobId`; realign skip |
+| Background job (`kind: "bg"`) missing from list | C                     | Recipe 6: comm is a version string; realign exe path test |
 
 ## Why this design
 

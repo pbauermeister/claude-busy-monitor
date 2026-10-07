@@ -106,11 +106,11 @@ Live install, two real sessions present (`586654.json` busy, `1349668.json` shel
 
 ### 3.8 Retrospective
 
-| #   | Point                                                                                          | Agent    | User       |
-| --- | ---------------------------------------------------------------------------------------------- | -------- | ---------- |
-| 1   | README §A4 had pre-written the exact playbook for "new status value" — diagnosis was fast      | well     | well       |
-| 2   | User overruled the IDLE proposal with a clear user-facing rationale (appears active → BUSY)    | well     | well       |
-| 3   | `test_version_matches_changes` editable-wheel drift recurred (#17 factoring candidate, hit 2)  | not well | ended well |
+| #   | Point                                                                                         | Agent    | User       |
+| --- | --------------------------------------------------------------------------------------------- | -------- | ---------- |
+| 1   | README §A4 had pre-written the exact playbook for "new status value" — diagnosis was fast     | well     | well       |
+| 2   | User overruled the IDLE proposal with a clear user-facing rationale (appears active → BUSY)   | well     | well       |
+| 3   | `test_version_matches_changes` editable-wheel drift recurred (#17 factoring candidate, hit 2) | not well | ended well |
 
 ### 3.9 Verdict
 
@@ -124,16 +124,16 @@ Live install, two real sessions present (`586654.json` busy, `1349668.json` shel
 
 ## Governance trace
 
-| Source                                            | Clause                | Action  | Note                                                                    |
-| ------------------------------------------------- | --------------------- | ------- | ----------------------------------------------------------------------- |
-| CEREMONIES.md `Fast-path task flow`               | Eligibility check     | applied | mechanical; mapping decision made by user upfront; scope ≤ paragraph    |
-| README-STATE-DETECTION.md §A4                      | New-status playbook   | applied | "do not silently drop"; decide mapping — followed verbatim              |
-| CLAUDE.md `No task-related commits on main`        | Branch hygiene        | applied | all work on `impl/0021-detect-shell-status`                             |
-| CLAUDE.md `Naming discipline`                      | Outcome-named         | applied | branch / devlog describe WHAT (detect shell status)                     |
-| CLAUDE.md `EN_UK for prose`                        | Spelling              | applied | "recognise", "colour" etc. in prose                                    |
-| CLAUDE.md `YAGNI`                                  | Scope discipline      | applied | no new ClaudeState; status-map only                                     |
-| MEMORY.md `Run make format after every code edit`  | Formatter clean       | applied | `make format` + `ruff format tests` run before commit                  |
-| CEREMONIES.md `Task closure`                       | Task closure ceremony | applied | this section                                                            |
+| Source                                            | Clause                | Action  | Note                                                                 |
+| ------------------------------------------------- | --------------------- | ------- | -------------------------------------------------------------------- |
+| CEREMONIES.md `Fast-path task flow`               | Eligibility check     | applied | mechanical; mapping decision made by user upfront; scope ≤ paragraph |
+| README-STATE-DETECTION.md §A4                     | New-status playbook   | applied | "do not silently drop"; decide mapping — followed verbatim           |
+| CLAUDE.md `No task-related commits on main`       | Branch hygiene        | applied | all work on `impl/0021-detect-shell-status`                          |
+| CLAUDE.md `Naming discipline`                     | Outcome-named         | applied | branch / devlog describe WHAT (detect shell status)                  |
+| CLAUDE.md `EN_UK for prose`                       | Spelling              | applied | "recognise", "colour" etc. in prose                                  |
+| CLAUDE.md `YAGNI`                                 | Scope discipline      | applied | no new ClaudeState; status-map only                                  |
+| MEMORY.md `Run make format after every code edit` | Formatter clean       | applied | `make format` + `ruff format tests` run before commit                |
+| CEREMONIES.md `Task closure`                      | Task closure ceremony | applied | this section                                                         |
 
 ## Resource consumption
 
@@ -144,12 +144,12 @@ Live install, two real sessions present (`586654.json` busy, `1349668.json` shel
 | Closure (devlog)            | ~20k            | 15 min      |
 | **Total**                   | **~70k**        | **~45 min** |
 
-| Counter                | Value                                                          |
-| ---------------------- | ------------------------------------------------------------- |
-| Pre-commit hook fails  | 0                                                             |
-| Subagent invocations   | 1 (Explore — detection-logic search)                         |
-| `/clear` events        | 0                                                             |
-| Memory rotation events | 0                                                             |
-| LOC changed            | see `git diff main...HEAD --stat`                            |
+| Counter                | Value                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| Pre-commit hook fails  | 0                                                                                     |
+| Subagent invocations   | 1 (Explore — detection-logic search)                                                  |
+| `/clear` events        | 0                                                                                     |
+| Memory rotation events | 0                                                                                     |
+| LOC changed            | see `git diff main...HEAD --stat`                                                     |
 | Files changed          | 7 (`_sessions.py`, README-STATE-DETECTION.md, README.md, 2 tests, CHANGES.md, devlog) |
-| Commits on branch      | 1 anticipated (single fast-path commit)                      |
+| Commits on branch      | 1 anticipated (single fast-path commit)                                               |

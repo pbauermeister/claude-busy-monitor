@@ -133,7 +133,7 @@ For the full design (assumptions the classifier depends on, diagnostic recipes f
 
 ## 7. Compatibility
 
-- **Operating system**: Linux only (relies on `/proc/<pid>/comm`); macOS is not supported yet.
+- **Operating system**: Linux only (relies on `/proc/<pid>/comm` and `/proc/<pid>/exe`); macOS is not supported yet.
   Help welcome: please [open a Discussion](https://github.com/pbauermeister/claude-busy-monitor/discussions) before any issue or PR.
 - **Claude Code**: v2.1.119 introduced the `status` field this tool relies on; older versions are silently dropped.
   `/exit` and `claude --resume <sessionId>` will migrate them.

@@ -1,5 +1,11 @@
 # Changes
 
+## Version 1.0.6:
+
+- Detection: sessions moved to the background (Claude Code v2.1.289, `claude bg-pty-host`) were reported BUSY while idle. The parked interactive front-end keeps a probe with `parkedJobId` set and a `status` frozen at the park moment; such probes are now skipped in favour of the background job's own probe. README-STATE-DETECTION.md gains §A5.
+- Detection: background job processes exec the versioned binary by full path, so `/proc/<pid>/comm` is the version string (e.g. `2.1.289`) rather than `claude`; they were dropped as non-claude. `_is_process_claude` now also accepts an exe under `claude/versions/`. README-STATE-DETECTION.md §C rewritten; diagnostic recipe 6 added.
+- Known gap (recorded in TODO.md): for a backgrounded session the listed id and token totals may come from the parked front-end's transcript (newest-mtime fallback, README §A3); state is unaffected.
+
 ## Version 1.0.5:
 
 - Detection: recognise the `"shell"` probe `status` (added by Claude Code after v2.1.119) instead of dropping it. Sessions that shelled out (e.g. via `!`, a local bash command, or Ctrl-Z) were silently invisible to the monitor; they now surface as BUSY — to the user the session looks active. `_PROBE_STATUS_MAP` gains a fourth key; README-STATE-DETECTION.md §A4 documents the new value and its idle-refinement derivation.
